@@ -33,7 +33,7 @@ public class AdminService {
         Admin admin = new Admin(
                 request.name,
                 request.email,
-                request.password // simple version (no hashing yet)
+                request.password // simple version
         );
 
         admin.persist();

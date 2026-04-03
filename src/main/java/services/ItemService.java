@@ -139,4 +139,8 @@ public class ItemService {
             Collections.reverse(items);
         }
     }
+    
+    public List<ItemResponse> getAllItems() {
+        return getAllItems(null, null);
+    }
 }

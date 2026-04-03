@@ -6,8 +6,7 @@ import dtos.AdminRegisterRequest;
 import dtos.ItemRequest;
 import dtos.ItemResponse;
 import dtos.StockUpdateRequest;
-import services.AdminService;
-import services.ItemService;
+import services.AdminFacade;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -21,23 +20,21 @@ import java.util.List;
 @Consumes(MediaType.APPLICATION_JSON)
 public class AdminResource {
 
-    @Inject
-    ItemService itemService;
-    @Inject
-    AdminService adminService;
+	@Inject
+	AdminFacade adminFacade;
 
     @GET
     @Path("/items")
     public List<ItemResponse> getAllItems(
             @QueryParam("sortBy") String sortBy,
             @QueryParam("sortDirection") String sortDirection) {
-        return itemService.getAllItems(sortBy, sortDirection);
+        return adminFacade.getAllItems(sortBy, sortDirection);
     }
 
     @GET
     @Path("/items/{id}")
     public ItemResponse getItemById(@PathParam("id") Long id) {
-        return itemService.getItemById(id);
+        return adminFacade.getItemById(id);
     }
 
     @GET
@@ -48,46 +45,46 @@ public class AdminResource {
             @QueryParam("category") String category,
             @QueryParam("sortBy") String sortBy,
             @QueryParam("sortDirection") String sortDirection) {
-        return itemService.searchItems(title, manufacturer, category, sortBy, sortDirection);
+        return adminFacade.searchItems(title, manufacturer, category, sortBy, sortDirection);
     }
 
     @POST
     @Path("/items")
     public Response createItem(@Valid ItemRequest request) {
-        ItemResponse createdItem = itemService.createItem(request);
+        ItemResponse createdItem = adminFacade.createItem(request);
         return Response.status(Response.Status.CREATED).entity(createdItem).build();
     }
 
     @PUT
     @Path("/items/{id}")
     public ItemResponse updateItem(@PathParam("id") Long id, @Valid ItemRequest request) {
-        return itemService.updateItem(id, request);
+        return adminFacade.updateItem(id, request);
     }
 
     @DELETE
     @Path("/items/{id}")
     public Response deleteItem(@PathParam("id") Long id) {
-        itemService.deleteItem(id);
+    	adminFacade.deleteItem(id);
         return Response.noContent().build();
     }
 
     @PATCH
     @Path("/items/{id}/stock")
     public ItemResponse updateStock(@PathParam("id") Long id, @Valid StockUpdateRequest request) {
-        return itemService.updateStock(id, request.stockQuantity);
+        return adminFacade.updateStock(id, request.stockQuantity);
     }
     
     @POST
     @Path("/register")
     public Response register(AdminRegisterRequest request) {
-        adminService.register(request);
+    	adminFacade.register(request);
         return Response.ok("Admin registered successfully").build();
     }
 
     @POST
     @Path("/login")
     public Response login(AdminLoginRequest request) {
-        boolean success = adminService.login(request);
+        boolean success = adminFacade.login(request);
 
         if (success) {
             return Response.ok(new AdminLoginResponse("Login successful", "ADMIN")).build();
