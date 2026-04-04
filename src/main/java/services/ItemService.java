@@ -2,6 +2,7 @@ package services;
 
 import dtos.ItemRequest;
 import dtos.ItemResponse;
+import factories.ItemFactory;
 import model.Item;
 import repos.ItemRepo;
 import services.strategy.ItemSortStrategy;
@@ -24,19 +25,15 @@ public class ItemService {
     @Inject
     ItemSortStrategyFactory sortStrategyFactory;
 
+    @Inject
+    ItemFactory itemFactory;
+
     public List<ItemResponse> getAllItems(String sortBy, String sortDirection) {
-        List<Item> items;
+        List<Item> items = iRepository.findAllItems();
 
-        ItemSortStrategy strategy = sortStrategyFactory.getStrategy(sortBy);
-
-        if (strategy != null) {
-            items = iRepository.findAllSorted(strategy.getSortField(), sortDirection);
-        } else {
-            items = iRepository.findAllItems();
-        }
+        sortItems(items, sortBy, sortDirection);
 
         List<ItemResponse> responses = new ArrayList<>();
-
         for (Item item : items) {
             responses.add(ItemResponse.fromEntity(item));
         }
@@ -72,7 +69,6 @@ public class ItemService {
         sortItems(items, sortBy, sortDirection);
 
         List<ItemResponse> responses = new ArrayList<>();
-
         for (Item item : items) {
             responses.add(ItemResponse.fromEntity(item));
         }
@@ -82,16 +78,8 @@ public class ItemService {
 
     @Transactional
     public ItemResponse createItem(ItemRequest request) {
-        Item item = new Item();
-        item.title = request.title;
-        item.manufacturer = request.manufacturer;
-        item.category = request.category;
-        item.price = request.price;
-        item.description = request.description;
-        item.stockQuantity = request.stockQuantity;
-
+        Item item = itemFactory.createItem(request);
         iRepository.saveItem(item);
-
         return ItemResponse.fromEntity(item);
     }
 
@@ -100,12 +88,7 @@ public class ItemService {
         Item item = iRepository.findItemById(id)
                 .orElseThrow(() -> new NotFoundException("Item not found with id: " + id));
 
-        item.title = request.title;
-        item.manufacturer = request.manufacturer;
-        item.category = request.category;
-        item.price = request.price;
-        item.description = request.description;
-        item.stockQuantity = request.stockQuantity;
+        itemFactory.updateItem(item, request);
 
         return ItemResponse.fromEntity(item);
     }
@@ -129,6 +112,7 @@ public class ItemService {
         return ItemResponse.fromEntity(item);
     }
 
+    // I use the selected strategy to sort the list in memory
     private void sortItems(List<Item> items, String sortBy, String sortDirection) {
         ItemSortStrategy strategy = sortStrategyFactory.getStrategy(sortBy);
 
@@ -136,19 +120,7 @@ public class ItemService {
             return;
         }
 
-        String field = strategy.getSortField();
-
-        if ("title".equalsIgnoreCase(field)) {
-            items.sort((a, b) -> a.title.compareToIgnoreCase(b.title));
-        } else if ("manufacturer".equalsIgnoreCase(field)) {
-            items.sort((a, b) -> a.manufacturer.compareToIgnoreCase(b.manufacturer));
-        } else if ("category".equalsIgnoreCase(field)) {
-            items.sort((a, b) -> a.category.compareToIgnoreCase(b.category));
-        } else if ("price".equalsIgnoreCase(field)) {
-            items.sort((a, b) -> Double.compare(a.price, b.price));
-        } else if ("stockQuantity".equalsIgnoreCase(field)) {
-            items.sort((a, b) -> Integer.compare(a.stockQuantity, b.stockQuantity));
-        }
+        strategy.sort(items);
 
         if ("desc".equalsIgnoreCase(sortDirection)) {
             Collections.reverse(items);

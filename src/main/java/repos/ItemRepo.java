@@ -34,11 +34,6 @@ public class ItemRepo implements PanacheRepository<Item> {
 
     //SORTING METHS
 
-    public List<Item> findAllSorted(String sortField, String sortDirection) {
-        String direction = "desc".equalsIgnoreCase(sortDirection) ? "desc" : "asc";
-        return find("order by " + sortField + " " + direction).list();
-    }
-
 
     public void saveItem(Item item) {
         persist(item);
