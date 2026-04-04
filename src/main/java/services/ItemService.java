@@ -4,6 +4,8 @@ import dtos.ItemRequest;
 import dtos.ItemResponse;
 import model.Item;
 import repos.ItemRepo;
+import services.strategy.ItemSortStrategy;
+import services.strategy.ItemSortStrategyFactory;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -19,11 +21,16 @@ public class ItemService {
     @Inject
     ItemRepo iRepository;
 
+    @Inject
+    ItemSortStrategyFactory sortStrategyFactory;
+
     public List<ItemResponse> getAllItems(String sortBy, String sortDirection) {
         List<Item> items;
 
-        if (sortBy != null && !sortBy.isBlank()) {
-            items = iRepository.findAllSorted(sortBy, sortDirection);
+        ItemSortStrategy strategy = sortStrategyFactory.getStrategy(sortBy);
+
+        if (strategy != null) {
+            items = iRepository.findAllSorted(strategy.getSortField(), sortDirection);
         } else {
             items = iRepository.findAllItems();
         }
@@ -35,6 +42,10 @@ public class ItemService {
         }
 
         return responses;
+    }
+
+    public List<ItemResponse> getAllItems() {
+        return getAllItems(null, null);
     }
 
     public ItemResponse getItemById(Long id) {
@@ -119,28 +130,28 @@ public class ItemService {
     }
 
     private void sortItems(List<Item> items, String sortBy, String sortDirection) {
-        if (sortBy == null || sortBy.isBlank()) {
+        ItemSortStrategy strategy = sortStrategyFactory.getStrategy(sortBy);
+
+        if (strategy == null) {
             return;
         }
 
-        if ("title".equalsIgnoreCase(sortBy)) {
+        String field = strategy.getSortField();
+
+        if ("title".equalsIgnoreCase(field)) {
             items.sort((a, b) -> a.title.compareToIgnoreCase(b.title));
-        } else if ("manufacturer".equalsIgnoreCase(sortBy)) {
+        } else if ("manufacturer".equalsIgnoreCase(field)) {
             items.sort((a, b) -> a.manufacturer.compareToIgnoreCase(b.manufacturer));
-        } else if ("category".equalsIgnoreCase(sortBy)) {
+        } else if ("category".equalsIgnoreCase(field)) {
             items.sort((a, b) -> a.category.compareToIgnoreCase(b.category));
-        } else if ("price".equalsIgnoreCase(sortBy)) {
+        } else if ("price".equalsIgnoreCase(field)) {
             items.sort((a, b) -> Double.compare(a.price, b.price));
-        } else if ("stockQuantity".equalsIgnoreCase(sortBy)) {
+        } else if ("stockQuantity".equalsIgnoreCase(field)) {
             items.sort((a, b) -> Integer.compare(a.stockQuantity, b.stockQuantity));
         }
 
         if ("desc".equalsIgnoreCase(sortDirection)) {
             Collections.reverse(items);
         }
-    }
-    
-    public List<ItemResponse> getAllItems() {
-        return getAllItems(null, null);
     }
 }

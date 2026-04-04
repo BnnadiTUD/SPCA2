@@ -1,4 +1,4 @@
-package strategy;
+package services.strategy;
 
 public class SortingManufacturerStrat implements ItemSortStrategy {
 
