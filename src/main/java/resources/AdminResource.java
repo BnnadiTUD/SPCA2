@@ -1,6 +1,6 @@
 package resources;
 
-import dtos.AdminLoginRequest;
+import dtos.LoginRequest;
 import dtos.AdminLoginResponse;
 import dtos.AdminRegisterRequest;
 import dtos.ItemRequest;
@@ -83,7 +83,7 @@ public class AdminResource {
 
     @POST
     @Path("/login")
-    public Response login(AdminLoginRequest request) {
+    public Response login(LoginRequest request) {
         boolean success = adminFacade.login(request);
 
         if (success) {

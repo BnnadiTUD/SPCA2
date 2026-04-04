@@ -3,13 +3,13 @@ package services;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import model.Admin;
-import dtos.AdminLoginRequest;
 import dtos.AdminRegisterRequest;
+import dtos.LoginRequest;
 
 @ApplicationScoped
 public class AdminService {
 
-    public boolean login(AdminLoginRequest request) {
+    public boolean login(LoginRequest request) {
 
         Admin admin = Admin.find("email", request.email).firstResult();
 

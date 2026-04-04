@@ -1,13 +1,13 @@
 package services;
 
-import dtos.AdminLoginRequest;
+import java.util.List;
+
 import dtos.AdminRegisterRequest;
 import dtos.ItemRequest;
 import dtos.ItemResponse;
+import dtos.LoginRequest;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import java.util.List;
 
 @ApplicationScoped
 public class AdminFacade {
@@ -19,7 +19,7 @@ public class AdminFacade {
     ItemService itemService;
 
     //  login
-    public boolean login(AdminLoginRequest request) {
+    public boolean login(LoginRequest request) {
         return adminService.login(request);
     }
 
