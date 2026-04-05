@@ -43,4 +43,11 @@ public class CartService {
 
         return CartItem.find("cart", cart).list();
     }
+    
+    @Transactional
+    public void removeFromCart(Long cartItemId) {
+        CartItem cartItem = CartItem.findById(cartItemId);
+
+        cartItem.delete();
+    }
 }

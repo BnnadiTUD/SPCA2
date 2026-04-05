@@ -93,4 +93,11 @@ public class CustomerResource {
     public List<CartItem> getCart(@QueryParam("customerId") Long customerId) {
         return cartService.getCartItems(customerId);
     }
+    
+    @DELETE
+    @Path("/cart/remove")
+    public Response removeFromCart(@QueryParam("cartItemId") Long cartItemId) {
+        cartService.removeFromCart(cartItemId);
+        return Response.ok("Item removed from cart").build();
+    }
 }

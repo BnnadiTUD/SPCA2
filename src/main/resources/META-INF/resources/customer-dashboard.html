@@ -85,6 +85,7 @@
 
     <div class="top-bar">
         <h1 id="welcomeMessage">Welcome, Customer</h1>
+        <button onclick="goToCart()" style="max-width: 150px;">View Cart</button>
         <button onclick="logout()" style="max-width: 150px;">Logout</button>
     </div>
 
@@ -223,6 +224,10 @@
             } catch (err) {
                 alert(err.message);
             }
+        }
+        
+        function goToCart() {
+            window.location.href = "cart.html";
         }
 
         function logout() {
