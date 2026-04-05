@@ -13,12 +13,16 @@ import jakarta.ws.rs.core.Response;
 import model.Customer;
 import services.AdminFacade;
 import services.CustomerService;
+import services.CartService;
+
 
 @Path("/customers")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class CustomerResource {
 
+    @Inject
+    CartService cartService;
     @Inject
     CustomerService service;
     @Inject
@@ -70,5 +74,16 @@ public class CustomerResource {
             @QueryParam("sortBy") String sortBy,
             @QueryParam("sortDirection") String sortDirection) {
         return adminFacade.searchItems(title, manufacturer, category, sortBy, sortDirection);
+    }
+    
+    @POST
+    @Path("/cart/add")
+    public Response addToCart(
+            @QueryParam("customerId") Long customerId,
+            @QueryParam("itemId") Long itemId,
+            @QueryParam("quantity") int quantity) {
+
+        cartService.addToCart(customerId, itemId, quantity);
+        return Response.ok("Item added to cart").build();
     }
 }
