@@ -1,5 +1,7 @@
 package services;
 
+import java.util.List;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import model.Cart;
@@ -33,5 +35,12 @@ public class CartService {
             ci.quantity = quantity;
             ci.persist();
         }
+    }
+    
+    public List<CartItem> getCartItems(Long customerId) {
+        Cart cart = Cart.find("customer.id", customerId).firstResult();
+        if (cart == null) return List.of();
+
+        return CartItem.find("cart", cart).list();
     }
 }

@@ -10,6 +10,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import model.CartItem;
 import model.Customer;
 import services.AdminFacade;
 import services.CustomerService;
@@ -85,5 +86,11 @@ public class CustomerResource {
 
         cartService.addToCart(customerId, itemId, quantity);
         return Response.ok("Item added to cart").build();
+    }
+    
+    @GET
+    @Path("/cart")
+    public List<CartItem> getCart(@QueryParam("customerId") Long customerId) {
+        return cartService.getCartItems(customerId);
     }
 }

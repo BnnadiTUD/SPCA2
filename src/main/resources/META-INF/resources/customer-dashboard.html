@@ -196,12 +196,32 @@
                         <p><strong>Category:</strong> ${item.category ?? "N/A"}</p>
                         <p><strong>Price:</strong> €${item.price ?? "N/A"}</p>
                         <p><strong>Stock:</strong> ${item.stockLevel ?? item.stock ?? "N/A"}</p>
+                        <button onclick="addToCart(${item.id})">Add to Cart</button>
                     `;
                     container.appendChild(card);
                 });
             } catch (error) {
                 container.innerHTML = "";
                 messageDiv.innerText = error.message;
+            }
+        }
+        
+        async function addToCart(itemId) {
+            const customerId = localStorage.getItem("customerId");
+
+            try {
+                const response = await fetch(
+                    `/customers/cart/add?customerId=${customerId}&itemId=${itemId}&quantity=1`,
+                    { method: "POST" }
+                );
+
+                if (!response.ok) {
+                    throw new Error(await response.text());
+                }
+
+                alert("Item added to cart");
+            } catch (err) {
+                alert(err.message);
             }
         }
 
