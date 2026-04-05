@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+            background: #f4f4f4;
+        }
+
+        h1, h2 {
+            text-align: center;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .items-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        .item-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .item-card h3 {
+            margin-top: 0;
+        }
+
+        .message {
+            text-align: center;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        .item-image {
+            width: 100%;
+            max-height: 220px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background: #eee;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <h1 id="welcomeMessage">Welcome, Customer</h1>
+        <button onclick="logout()" style="max-width: 150px;">Logout</button>
+    </div>
+
+    <div class="controls">
+        <h2>Browse Items</h2>
+        <div class="controls-grid">
+            <div>
+                <label for="title">Search by Title</label>
+                <input type="text" id="title" placeholder="e.g. Hoodie">
+            </div>
+
+            <div>
+                <label for="manufacturer">Search by Manufacturer</label>
+                <input type="text" id="manufacturer" placeholder="e.g. Nike">
+            </div>
+
+            <div>
+                <label for="category">Search by Category</label>
+                <input type="text" id="category" placeholder="e.g. Jackets">
+            </div>
+
+            <div>
+                <label for="sortBy">Sort By</label>
+                <select id="sortBy">
+                    <option value="">None</option>
+                    <option value="title">Title</option>
+                    <option value="manufacturer">Manufacturer</option>
+                    <option value="price">Price</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="sortDirection">Sort Direction</label>
+                <select id="sortDirection">
+                    <option value="asc">Ascending</option>
+                    <option value="desc">Descending</option>
+                </select>
+            </div>
+
+            <div style="display: flex; align-items: end;">
+                <button onclick="loadItems()">Search / Refresh</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="message" class="message"></div>
+    <div id="itemsContainer" class="items-container"></div>
+
+    <script>
+        window.onload = function () {
+            const customerName = localStorage.getItem("customerName");
+            if (customerName) {
+                document.getElementById("welcomeMessage").innerText = "Welcome, " + customerName;
+            }
+
+            loadItems();
+        };
+
+        async function loadItems() {
+            const title = document.getElementById("title").value.trim();
+            const manufacturer = document.getElementById("manufacturer").value.trim();
+            const category = document.getElementById("category").value.trim();
+            const sortBy = document.getElementById("sortBy").value;
+            const sortDirection = document.getElementById("sortDirection").value;
+
+            const messageDiv = document.getElementById("message");
+            const container = document.getElementById("itemsContainer");
+
+            messageDiv.innerText = "";
+            container.innerHTML = "Loading items...";
+
+            const params = new URLSearchParams();
+
+            if (title) params.append("title", title);
+            if (manufacturer) params.append("manufacturer", manufacturer);
+            if (category) params.append("category", category);
+            if (sortBy) params.append("sortBy", sortBy);
+            if (sortDirection) params.append("sortDirection", sortDirection);
+
+            const url = "customers/items/search?" + params.toString();
+
+            try {
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || "Failed to load items");
+                }
+
+                const items = await response.json();
+                container.innerHTML = "";
+
+                if (!items || items.length === 0) {
+                    messageDiv.innerText = "No items found.";
+                    return;
+                }
+
+                items.forEach(item => {
+                    const imageHtml = item.imageUrl
+                        ? `<img class="item-image" src="${item.imageUrl}" alt="${item.title}">`
+                        : `<div class="item-image"></div>`;
+
+                    const card = document.createElement("div");
+                    card.className = "item-card";
+                    card.innerHTML = `
+                        ${imageHtml}
+                        <h3>${item.title ?? "No title"}</h3>
+                        <p><strong>Manufacturer:</strong> ${item.manufacturer ?? "N/A"}</p>
+                        <p><strong>Category:</strong> ${item.category ?? "N/A"}</p>
+                        <p><strong>Price:</strong> €${item.price ?? "N/A"}</p>
+                        <p><strong>Stock:</strong> ${item.stockLevel ?? item.stock ?? "N/A"}</p>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                container.innerHTML = "";
+                messageDiv.innerText = error.message;
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem("customerName");
+            localStorage.removeItem("customerEmail");
+            localStorage.removeItem("customerId");
+            localStorage.removeItem("role");
+            window.location.href = "launcher.html";
+        }
+    </script>
+
+</body>
+</html>

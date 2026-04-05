@@ -194,13 +194,13 @@
     // This is the backend endpoint for all item admin actions
     const baseUrl = 'http://localhost:8080/admin/items';
 
-    // I use this to show feedback to the user on the page
+    // show feedback to the user on the page
     function showMessage(text, isError = false) {
       const box = document.getElementById('messageBox');
       box.innerHTML = `<div class="message ${isError ? 'error' : 'success'}">${text}</div>`;
     }
 
-    // I use this to collect all item form values in one object
+    // ollect all item form values in one object
     function getItemData() {
       return {
         title: document.getElementById('title').value.trim(),
@@ -212,7 +212,7 @@
       };
     }
 
-    // I use this function to create a new item
+    //  create a new item
     async function createItem() {
       try {
         const response = await fetch(baseUrl, {
@@ -265,7 +265,7 @@
       }
     }
 
-    // I use this function to delete an item by id
+    // delete an item by id
     async function deleteItem() {
       const id = document.getElementById('itemId').value;
 
@@ -293,7 +293,7 @@
       }
     }
 
-    // I use this to update only the stock value of an item
+    // update only the stock value of an item
     async function updateStock() {
       const id = document.getElementById('itemId').value;
       const newStockQuantity = document.getElementById('newStockQuantity').value;
@@ -326,7 +326,7 @@
       }
     }
 
-    // I use this to load all items from the database
+    // load all items from the db
     async function loadItems() {
       try {
         const response = await fetch(baseUrl);
@@ -343,7 +343,7 @@
       }
     }
 
-    // I use this to search and sort items using query parameters
+    //  search and sort items using query parameters
     async function searchItems() {
       const title = document.getElementById('searchTitle').value.trim();
       const manufacturer = document.getElementById('searchManufacturer').value.trim();
@@ -374,7 +374,7 @@
       }
     }
 
-    // I use this to display the items in the table
+    //  display the items in the table
     function renderItems(items) {
       const tableBody = document.getElementById('itemsTableBody');
       tableBody.innerHTML = '';
@@ -394,12 +394,12 @@
       });
     }
 
-    // I use this to stop quotes breaking the row click function
+    // stop quotes breaking the row click function
     function escapeText(text) {
       return String(text ?? '').replace(/'/g, "\\'");
     }
 
-    // I use this to load a selected item back into the form
+    //  load a selected item back into the form
     function selectItem(id, title, manufacturer, category, price, description, stockQuantity) {
       document.getElementById('itemId').value = id;
       document.getElementById('title').value = title;
@@ -410,7 +410,7 @@
       document.getElementById('stockQuantity').value = stockQuantity;
     }
 
-    // I load all items when the page first opens
+    //  load all items when the page first opens
     loadItems();
   </script>
 </body>

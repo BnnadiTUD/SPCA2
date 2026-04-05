@@ -1,11 +1,17 @@
 package resources;
 
+import java.util.List;
+
+import dtos.CustomerLoginResponse;
 import dtos.CustomerRegRequest;
+import dtos.ItemResponse;
 import dtos.LoginRequest;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import model.Customer;
+import services.AdminFacade;
 import services.CustomerService;
 
 @Path("/customers")
@@ -15,16 +21,54 @@ public class CustomerResource {
 
     @Inject
     CustomerService service;
+    @Inject
+    AdminFacade adminFacade;
 
     @POST
     @Path("/register")
     public Response register(CustomerRegRequest req) {
-        return Response.ok(service.register(req)).build();
+        Customer c = service.register(req);
+
+        CustomerLoginResponse response = new CustomerLoginResponse(
+            "Customer registered successfully",
+            "CUSTOMER",
+            c.id,
+            c.name,
+            c.email
+        );
+
+        return Response.ok(response).build();
     }
 
     @POST
     @Path("/login")
     public Response login(LoginRequest req) {
-        return Response.ok(service.login(req.email, req.password)).build();
+        CustomerLoginResponse response = service.login(req.email, req.password);
+        return Response.ok(response).build();
+    }
+    
+    @GET
+    @Path("/items")
+    public List<ItemResponse> getAllItems(
+            @QueryParam("sortBy") String sortBy,
+            @QueryParam("sortDirection") String sortDirection) {
+        return adminFacade.getAllItems(sortBy, sortDirection);
+    }
+
+    @GET
+    @Path("/items/{id}")
+    public ItemResponse getItemById(@PathParam("id") Long id) {
+        return adminFacade.getItemById(id);
+    }
+
+    @GET
+    @Path("/items/search")
+    public List<ItemResponse> searchItems(
+            @QueryParam("title") String title,
+            @QueryParam("manufacturer") String manufacturer,
+            @QueryParam("category") String category,
+            @QueryParam("sortBy") String sortBy,
+            @QueryParam("sortDirection") String sortDirection) {
+        return adminFacade.searchItems(title, manufacturer, category, sortBy, sortDirection);
     }
 }

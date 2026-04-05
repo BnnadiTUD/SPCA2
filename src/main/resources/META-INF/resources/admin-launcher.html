@@ -46,7 +46,7 @@
 
     <div id="message"></div>
 
-    <!-- I use this section for admin login -->
+    <!--  section for admin login -->
     <div id="loginSection">
         <h2>Login</h2>
         <input type="email" id="loginEmail" placeholder="Email">
@@ -54,7 +54,7 @@
         <button onclick="login()">Login</button>
     </div>
 
-    <!-- I use this section to create a new admin account -->
+    <!-- create a new admin account -->
     <div id="registerSection">
         <h2>Register</h2>
         <input type="text" id="registerName" placeholder="Name">
@@ -68,7 +68,7 @@
     // Base URL for the admin endpoints in my Quarkus backend
     const baseUrl = "http://localhost:8080/admin";
 
-    // I use this to show a success or error message on the page
+    //  show a success or error message on the page
     function showMessage(message, isError = false) {
         const messageBox = document.getElementById("message");
         messageBox.innerHTML = `<p class="${isError ? 'error' : 'success'}">${message}</p>`;
@@ -100,7 +100,7 @@
 
             showMessage("Login successful");
 
-            // After login succeeds, I send the admin to the dashboard page
+            // send the admin to the dashboard page after succesful reg
             window.location.href = "admin-dashboard.html";
 
         } catch (error) {
@@ -108,7 +108,7 @@
         }
     }
 
-    // This function registers a new admin in the database
+    // register admin
     async function register() {
         const name = document.getElementById("registerName").value.trim();
         const email = document.getElementById("registerEmail").value.trim();
@@ -133,7 +133,7 @@
                 throw new Error(text || "Registration failed");
             }
 
-            // I keep register simple: after registering, the user logs in
+            //  after registering, the user logs in
             showMessage("Registered successfully. You can now log in.");
 
         } catch (error) {

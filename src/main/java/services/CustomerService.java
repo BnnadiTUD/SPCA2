@@ -1,5 +1,6 @@
 package services;
 
+import dtos.CustomerLoginResponse;
 import dtos.CustomerRegRequest;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
@@ -22,13 +23,19 @@ public class CustomerService {
         return c;
     }
 
-    public Customer login(String email, String password) {
-        Customer c = Customer.find("email", email).firstResult();
+	public CustomerLoginResponse login(String email, String password) {
+	    Customer c = Customer.find("email", email).firstResult();
 
-        if (c == null || !c.password.equals(password)) {
-            throw new NotAuthorizedException("Invalid credentials");
-        }
+	    if (c == null || !c.password.equals(password)) {
+	        throw new NotAuthorizedException("Invalid credentials");
+	    }
 
-        return c;
-    }
+	    return new CustomerLoginResponse(
+	        "Customer login successful",
+	        "CUSTOMER",
+	        c.id,
+	        c.name,
+	        c.email
+	    );
+	}
 }
