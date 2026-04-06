@@ -3,8 +3,15 @@ package services;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import model.Admin;
+
+import java.util.List;
+
 import dtos.AdminRegisterRequest;
 import dtos.LoginRequest;
+import dtos.CustomerResponse;
+import dtos.OrderResponse;
+import model.Customer;
+import model.Order;
 
 @ApplicationScoped
 public class AdminService {
@@ -37,5 +44,30 @@ public class AdminService {
         );
 
         admin.persist();
+    }
+    
+    public List<CustomerResponse> getAllCustomers() {
+        List<Customer> customers = Customer.listAll();
+
+        return customers.stream()
+            .map(customer -> new CustomerResponse(
+                customer.id,
+                customer.name,
+                customer.email,
+                customer.address
+            ))
+            .toList();
+    }
+
+    public List<OrderResponse> getCustomerOrders(Long customerId) {
+        List<Order> orders = Order.find("customer.id", customerId).list();
+
+        return orders.stream()
+            .map(order -> new OrderResponse(
+                order.id,
+                order.orderDate,
+                order.orderTotal
+            ))
+            .toList();
     }
 }

@@ -1,8 +1,10 @@
 package resources;
 
 import dtos.LoginRequest;
+import dtos.OrderResponse;
 import dtos.AdminLoginResponse;
 import dtos.AdminRegisterRequest;
+import dtos.CustomerResponse;
 import dtos.ItemRequest;
 import dtos.ItemResponse;
 import dtos.StockUpdateRequest;
@@ -93,5 +95,17 @@ public class AdminResource {
         return Response.status(Response.Status.UNAUTHORIZED)
                 .entity(new AdminLoginResponse("Invalid email or password", null))
                 .build();
+    }
+    
+    @GET
+    @Path("/customers")
+    public List<CustomerResponse> getAllCustomers() {
+        return adminFacade.getAllCustomers();
+    }
+
+    @GET
+    @Path("/customers/{id}/orders")
+    public List<OrderResponse> getCustomerOrders(@PathParam("id") Long id) {
+        return adminFacade.getCustomerOrders(id);
     }
 }

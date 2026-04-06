@@ -3,9 +3,11 @@ package services;
 import java.util.List;
 
 import dtos.AdminRegisterRequest;
+import dtos.CustomerResponse;
 import dtos.ItemRequest;
 import dtos.ItemResponse;
 import dtos.LoginRequest;
+import dtos.OrderResponse;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -67,5 +69,13 @@ public class AdminFacade {
     // Update stock only
     public ItemResponse updateStock(Long id, Integer stockQuantity) {
         return itemService.updateStock(id, stockQuantity);
+    }
+    
+    public List<CustomerResponse> getAllCustomers() {
+        return adminService.getAllCustomers();
+    }
+
+    public List<OrderResponse> getCustomerOrders(Long customerId) {
+        return adminService.getCustomerOrders(customerId);
     }
 }

@@ -76,6 +76,23 @@
       background: #ffebee;
       color: #c62828;
     }
+    
+    #customersTableBody tr {
+    cursor: pointer;
+}
+
+#customersTableBody tr:hover {
+    background-color: #f0f0f0;
+}
+
+dialog {
+    width: 600px;
+    max-width: 90%;
+    border: none;
+    border-radius: 8px;
+    padding: 20px;
+}
+    
   </style>
 </head>
 <body>
@@ -189,7 +206,23 @@
       </thead>
       <tbody id="itemsTableBody"></tbody>
     </table>
+     
+  <h2>Customers</h2>
+<button onclick="loadCustomers()">Load Customers</button>
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Address</th>
+        </tr>
+    </thead>
+    <tbody id="customersTableBody"></tbody>
+</table>
+  
   </div>
+ 
 
   <script>
     // This is the backend endpoint for all item admin actions
@@ -422,6 +455,100 @@
 
     //  load all items when the page first opens
     loadItems();
+    
+    async function loadCustomers() {
+        try {
+            const response = await fetch("http://localhost:8080/admin/customers");
+
+            if (!response.ok) {
+                throw new Error("Failed to load customers");
+            }
+
+            const customers = await response.json();
+            const tableBody = document.getElementById("customersTableBody");
+            tableBody.innerHTML = "";
+
+            customers.forEach(customer => {
+                const row = document.createElement("tr");
+
+                row.innerHTML = `
+                    <td>${customer.name}</td>
+                    <td>${customer.email}</td>
+                    <td>${customer.address || ""}</td>
+                `;
+
+                row.onclick = () => openCustomerOrdersDialog(customer.id, customer.name);
+
+                tableBody.appendChild(row);
+            });
+
+        } catch (error) {
+            console.error(error);
+            alert(error.message);
+        }
+    }
+
+    async function openCustomerOrdersDialog(customerId, customerName) {
+        try {
+            const response = await fetch(`http://localhost:8080/admin/customers/${customerId}/orders`);
+
+            if (!response.ok) {
+                throw new Error("Failed to load customer orders");
+            }
+
+            const orders = await response.json();
+            const content = document.getElementById("customerOrdersContent");
+
+            let html = `<p><strong>Customer:</strong> ${customerName}</p>`;
+
+            if (!orders || orders.length === 0) {
+                html += `<p>No past orders found.</p>`;
+            } else {
+                html += `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                orders.forEach(order => {
+                    html += `
+                        <tr>
+                            <td>${order.id}</td>
+                            <td>${order.orderDate}</td>
+                            <td>€${order.orderTotal.toFixed(2)}</td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            content.innerHTML = html;
+            document.getElementById("customerOrdersDialog").showModal();
+
+        } catch (error) {
+            console.error(error);
+            alert(error.message);
+        }
+    }
+    
+    loadCustomers();
+    
   </script>
+  <dialog id="customerOrdersDialog">
+    <h2>Customer Orders</h2>
+    <div id="customerOrdersContent"></div>
+    <br>
+    <button onclick="document.getElementById('customerOrdersDialog').close()">Close</button>
+</dialog>
 </body>
 </html>
