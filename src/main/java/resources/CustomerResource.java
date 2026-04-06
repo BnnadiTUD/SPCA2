@@ -12,8 +12,11 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import model.CartItem;
 import model.Customer;
+import model.Order;
+import model.OrderItem;
 import services.AdminFacade;
 import services.CustomerService;
+import services.OrderService;
 import services.CartService;
 
 
@@ -28,7 +31,8 @@ public class CustomerResource {
     CustomerService service;
     @Inject
     AdminFacade adminFacade;
-
+    @Inject
+    OrderService orderService;
     @POST
     @Path("/register")
     public Response register(CustomerRegRequest req) {
@@ -99,5 +103,24 @@ public class CustomerResource {
     public Response removeFromCart(@QueryParam("cartItemId") Long cartItemId) {
         cartService.removeFromCart(cartItemId);
         return Response.ok("Item removed from cart").build();
+    }
+    
+    @POST
+    @Path("/orders/checkout")
+    public Response checkout(@QueryParam("customerId") Long customerId) {
+        Order order = orderService.checkout(customerId);
+        return Response.ok(order).build();
+    }
+
+    @GET
+    @Path("/orders")
+    public List<Order> getOrders(@QueryParam("customerId") Long customerId) {
+        return orderService.getCustomerOrders(customerId);
+    }
+
+    @GET
+    @Path("/orders/{orderId}/items")
+    public List<OrderItem> getOrderItems(@PathParam("orderId") Long orderId) {
+        return orderService.getOrderItems(orderId);
     }
 }

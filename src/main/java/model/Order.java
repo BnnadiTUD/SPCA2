@@ -18,16 +18,16 @@ public class Order extends PanacheEntity {
 
     public LocalDateTime orderDate;
 
-    public double totalPrice;
+    public double orderTotal;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     public List<OrderItem> orderItems = new ArrayList<>();
 
-	public Order(Customer customer, LocalDateTime orderDate, double totalPrice, List<OrderItem> orderItems) {
+	public Order(Customer customer, LocalDateTime orderDate, double orderTotal, List<OrderItem> orderItems) {
 		super();
 		this.customer = customer;
 		this.orderDate = orderDate;
-		this.totalPrice = totalPrice;
+		this.orderTotal = orderTotal;
 		this.orderItems = orderItems;
 	}
     

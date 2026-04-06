@@ -15,17 +15,17 @@ public class OrderItem extends PanacheEntity {
 
     public int quantity;
 
-    public double priceAtpurchasePricePurchase;
+    public double priceForOne;
 
-    public double orderTotal;
+    public double total;
 
-	public OrderItem(Order order, Item item, int quantity, double priceAtpurchasePricePurchase, double orderTotal) {
+	public OrderItem(Order order, Item item, int quantity, double priceForOne, double total) {
 		super();
 		this.order = order;
 		this.item = item;
 		this.quantity = quantity;
-		this.priceAtpurchasePricePurchase = priceAtpurchasePricePurchase;
-		this.orderTotal = orderTotal;
+		this.priceForOne = priceForOne;
+		this.total = total;
 	}
     
     public OrderItem() {
