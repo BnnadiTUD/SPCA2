@@ -4,6 +4,8 @@ package services;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import dtos.OrderItemResponse;
+import dtos.OrderResponse;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
@@ -73,11 +75,31 @@ public class OrderService {
         return order;
     }
 
-    public List<Order> getCustomerOrders(Long customerId) {
-        return Order.find("customer.id", customerId).list();
+
+    public List<OrderResponse> getCustomerOrders(Long customerId) {
+        List<Order> orders = Order.find("customer.id", customerId).list();
+
+        return orders.stream()
+            .map(order -> new OrderResponse(
+                order.id,
+                order.orderDate,
+                order.orderTotal
+            ))
+            .toList();
     }
 
-    public List<OrderItem> getOrderItems(Long orderId) {
-        return OrderItem.find("order.id", orderId).list();
+
+    public List<OrderItemResponse> getOrderItems(Long orderId) {
+        List<OrderItem> items = OrderItem.find("order.id", orderId).list();
+
+        return items.stream()
+            .map(item -> new OrderItemResponse(
+                item.id,
+                item.item.title,
+                item.quantity,
+                item.priceForOne,
+                item.total
+            ))
+            .toList();
     }
 }

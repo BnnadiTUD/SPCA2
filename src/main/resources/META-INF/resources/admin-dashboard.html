@@ -81,6 +81,7 @@
 <body>
   <div class="container">
     <h1>Admin Dashboard</h1>
+    <button onclick="logout()">Logout</button>
     <p>This page is used to test the admin item endpoints from the frontend.</p>
 
     <div id="messageBox"></div>
@@ -409,6 +410,15 @@
       document.getElementById('description').value = description;
       document.getElementById('stockQuantity').value = stockQuantity;
     }
+    
+    function logout() {
+        // clear any stored session data
+        localStorage.removeItem("adminId");
+
+        // redirect to launcher page
+        window.location.href = "launcher.html";
+    }
+ 
 
     //  load all items when the page first opens
     loadItems();

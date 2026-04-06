@@ -86,6 +86,7 @@
     <div class="top-bar">
         <h1 id="welcomeMessage">Welcome, Customer</h1>
         <button onclick="goToCart()" style="max-width: 150px;">View Cart</button>
+        <button onclick="goToOrders()">View Orders</button>
         <button onclick="logout()" style="max-width: 150px;">Logout</button>
     </div>
 
@@ -236,6 +237,11 @@
             localStorage.removeItem("customerId");
             localStorage.removeItem("role");
             window.location.href = "launcher.html";
+        }
+        
+
+       function goToOrders() {
+            window.location.href = "orders.html";
         }
     </script>
 

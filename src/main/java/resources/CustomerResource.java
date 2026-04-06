@@ -6,6 +6,8 @@ import dtos.CustomerLoginResponse;
 import dtos.CustomerRegRequest;
 import dtos.ItemResponse;
 import dtos.LoginRequest;
+import dtos.OrderItemResponse;
+import dtos.OrderResponse;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -108,19 +110,18 @@ public class CustomerResource {
     @POST
     @Path("/orders/checkout")
     public Response checkout(@QueryParam("customerId") Long customerId) {
-        Order order = orderService.checkout(customerId);
-        return Response.ok(order).build();
+        orderService.checkout(customerId);
+        return Response.ok("Checkout successful").build();
     }
-
     @GET
     @Path("/orders")
-    public List<Order> getOrders(@QueryParam("customerId") Long customerId) {
+    public List<OrderResponse> getOrders(@QueryParam("customerId") Long customerId) {
         return orderService.getCustomerOrders(customerId);
     }
 
     @GET
     @Path("/orders/{orderId}/items")
-    public List<OrderItem> getOrderItems(@PathParam("orderId") Long orderId) {
+    public List<OrderItemResponse> getOrderItems(@PathParam("orderId") Long orderId) {
         return orderService.getOrderItems(orderId);
     }
 }

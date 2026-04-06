@@ -198,24 +198,29 @@
 
         async function checkout() {
             const customerId = localStorage.getItem("customerId");
-            const messageDiv = document.getElementById("message");
-            messageDiv.innerText = "";
+
+            if (!customerId) {
+                alert("No logged-in customer found.");
+                return;
+            }
 
             try {
-                const response = await fetch(`/customers/cart/checkout?customerId=${customerId}`, {
+                const response = await fetch(`/customers/orders/checkout?customerId=${customerId}`, {
                     method: "POST"
                 });
 
+                const text = await response.text();
+
                 if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(errorText || "Checkout failed");
+                    throw new Error(text || "Checkout failed");
                 }
 
-                const result = await response.text();
-                messageDiv.innerText = result || "Checkout successful";
-                loadCart();
+                alert("Order placed successfully!");
+                window.location.href = "orders.html";
+
             } catch (error) {
-                messageDiv.innerText = error.message;
+                console.error(error);
+                alert(error.message);
             }
         }
 
