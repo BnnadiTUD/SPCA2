@@ -5,6 +5,10 @@ import dtos.ItemResponse;
 import factories.ItemFactory;
 import model.Item;
 import repos.ItemRepo;
+import services.filter.CategoryFilter;
+import services.filter.ItemFilterHandler;
+import services.filter.ManufacturerFilter;
+import services.filter.TitleFilter;
 import services.strategy.ItemSortStrategy;
 import services.strategy.ItemSortStrategyFactory;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -53,28 +57,35 @@ public class ItemService {
     }
 
     public List<ItemResponse> searchItems(String title, String manufacturer, String category,
-                                          String sortBy, String sortDirection) {
-        List<Item> items;
+            String sortBy, String sortDirection) {
 
-        if (title != null && !title.isBlank()) {
-            items = iRepository.searchByTitle(title);
-        } else if (manufacturer != null && !manufacturer.isBlank()) {
-            items = iRepository.searchByManufacturer(manufacturer);
-        } else if (category != null && !category.isBlank()) {
-            items = iRepository.searchByCategory(category);
-        } else {
-            items = iRepository.findAllItems();
-        }
-
-        sortItems(items, sortBy, sortDirection);
-
-        List<ItemResponse> responses = new ArrayList<>();
-        for (Item item : items) {
-            responses.add(ItemResponse.fromEntity(item));
-        }
-
-        return responses;
-    }
+	List<Item> items = iRepository.findAllItems();
+	
+	ItemFilterHandler filterHandler = new ItemFilterHandler();
+	
+	if (title != null && !title.isBlank()) {
+	filterHandler.addFilter(new TitleFilter(title));
+	}
+	
+	if (manufacturer != null && !manufacturer.isBlank()) {
+	filterHandler.addFilter(new ManufacturerFilter(manufacturer));
+	}
+	
+	if (category != null && !category.isBlank()) {
+	filterHandler.addFilter(new CategoryFilter(category));
+	}
+	
+	items = filterHandler.applyFilters(items);
+	
+	sortItems(items, sortBy, sortDirection);
+	
+	List<ItemResponse> responses = new ArrayList<>();
+	for (Item item : items) {
+	responses.add(ItemResponse.fromEntity(item));
+	}
+	
+	return responses;
+	}
 
     @Transactional
     public ItemResponse createItem(ItemRequest request) {
