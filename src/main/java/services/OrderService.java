@@ -11,6 +11,10 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 import model.Cart;
+import jakarta.inject.Inject;
+import services.observer.StockInventManager;
+import services.observer.StockEvent;
+import services.observer.StockEventType;
 import model.CartItem;
 import model.Customer;
 import model.Item;
@@ -19,6 +23,9 @@ import model.OrderItem;
 
 @ApplicationScoped
 public class OrderService {
+	
+	@Inject
+	StockInventManager inventoryManager;
 
     @Transactional
     public Order checkout(Long customerId) {
@@ -48,6 +55,8 @@ public class OrderService {
         for (CartItem cartItem : cartItems) {
             Item item = cartItem.item;
 
+            int oldStock = item.stockQuantity;
+
             if (item.stockQuantity < cartItem.quantity) {
                 throw new BadRequestException(
                     "Not enough stock for item: " + item.title
@@ -55,6 +64,14 @@ public class OrderService {
             }
 
             item.stockQuantity -= cartItem.quantity;
+
+            inventoryManager.notifyObservers(new StockEvent(
+                    item.id,
+                    item.title,
+                    oldStock,
+                    item.stockQuantity,
+                    StockEventType.STOCK_REDUCED_BY_ORDER
+            ));
 
             OrderItem orderItem = new OrderItem();
             orderItem.order = order;

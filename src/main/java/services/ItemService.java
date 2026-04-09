@@ -1,5 +1,7 @@
 package services;
-
+import services.observer.StockInventManager;
+import services.observer.StockEvent;
+import services.observer.StockEventType;
 import dtos.ItemRequest;
 import dtos.ItemResponse;
 import factories.ItemFactory;
@@ -25,6 +27,9 @@ public class ItemService {
 
     @Inject
     ItemRepo iRepository;
+    
+    @Inject
+    StockInventManager inventoryManager;
 
     @Inject
     ItemSortStrategyFactory sortStrategyFactory;
@@ -91,6 +96,15 @@ public class ItemService {
     public ItemResponse createItem(ItemRequest request) {
         Item item = itemFactory.createItem(request);
         iRepository.saveItem(item);
+
+        inventoryManager.notifyObservers(new StockEvent(
+                item.id,
+                item.title,
+                0,
+                item.stockQuantity,
+                StockEventType.ITEM_CREATED
+        ));
+
         return ItemResponse.fromEntity(item);
     }
 
@@ -106,11 +120,23 @@ public class ItemService {
 
     @Transactional
     public void deleteItem(Long id) {
+        Item item = iRepository.findItemById(id)
+                .orElseThrow(() -> new NotFoundException("Item not found with id: " + id));
+
+        int oldStock = item.stockQuantity;
         boolean deleted = iRepository.deleteItemById(id);
 
         if (!deleted) {
             throw new NotFoundException("Item not found with id: " + id);
         }
+
+        inventoryManager.notifyObservers(new StockEvent(
+                id,
+                item.title,
+                oldStock,
+                0,
+                StockEventType.ITEM_DELETED
+        ));
     }
 
     @Transactional
@@ -118,7 +144,16 @@ public class ItemService {
         Item item = iRepository.findItemById(id)
                 .orElseThrow(() -> new NotFoundException("Item not found with id: " + id));
 
+        int oldStock = item.stockQuantity;
         item.stockQuantity = newStockQuantity;
+
+        inventoryManager.notifyObservers(new StockEvent(
+                item.id,
+                item.title,
+                oldStock,
+                newStockQuantity,
+                StockEventType.STOCK_UPDATED
+        ));
 
         return ItemResponse.fromEntity(item);
     }
