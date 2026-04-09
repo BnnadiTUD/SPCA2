@@ -5,43 +5,110 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Dashboard</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: Arial, sans-serif;
-      margin: 30px;
-      background: #f5f5f5;
+      margin: 0;
+      padding: 30px;
+      background: linear-gradient(to bottom right, #ececec, #dcdcdc);
+      color: #222;
     }
 
     .container {
-      max-width: 900px;
+      max-width: 1100px;
       margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 18px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      border: 1px solid #d7d7d7;
     }
 
-    h1, h2 {
+    h1 {
       margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 34px;
+      font-weight: bold;
+      color: #222;
+    }
+
+    h2 {
+      margin-top: 35px;
+      margin-bottom: 15px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #2a2a2a;
+      border-bottom: 2px solid #e6e6e6;
+      padding-bottom: 8px;
+    }
+
+    p {
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+      color: #333;
     }
 
     input, textarea, button, select {
       width: 100%;
-      padding: 10px;
+      padding: 12px 14px;
       margin-top: 5px;
       margin-bottom: 15px;
-      box-sizing: border-box;
+      border: 1px solid #c9c9c9;
+      border-radius: 8px;
+      font-size: 14px;
+      background: #fff;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: #777;
+      box-shadow: 0 0 0 3px rgba(120,120,120,0.12);
     }
 
     button {
       width: auto;
       cursor: pointer;
       margin-right: 10px;
+      background: #4f4f4f;
+      color: white;
+      border: none;
+      font-weight: bold;
+      transition: background 0.2s ease, transform 0.15s ease;
+    }
+
+    button:hover {
+      background: #2f2f2f;
+      transform: translateY(-1px);
+    }
+
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
     }
 
     .row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 15px;
+      gap: 18px;
+    }
+
+    .panel {
+      background: #f8f8f8;
+      border: 1px solid #e1e1e1;
+      border-radius: 14px;
+      padding: 20px;
+      margin-top: 20px;
     }
 
     table {
@@ -49,192 +116,229 @@
       border-collapse: collapse;
       margin-top: 15px;
       background: white;
+      overflow: hidden;
+      border-radius: 12px;
     }
 
     th, td {
-      border: 1px solid #ccc;
-      padding: 10px;
+      border: 1px solid #d8d8d8;
+      padding: 12px;
       text-align: left;
     }
 
     th {
-      background: #eee;
+      background: #e9e9e9;
+      font-weight: bold;
+    }
+
+    tr:hover {
+      background: #f5f5f5;
     }
 
     .message {
-      padding: 10px;
+      padding: 12px 14px;
       margin-bottom: 15px;
-      border-radius: 4px;
+      border-radius: 8px;
+      font-weight: bold;
     }
 
     .success {
-      background: #e8f5e9;
-      color: #2e7d32;
+      background: #ececec;
+      color: #222;
+      border: 1px solid #cfcfcf;
     }
 
     .error {
-      background: #ffebee;
-      color: #c62828;
+      background: #fbe9e9;
+      color: #9b1c1c;
+      border: 1px solid #efc5c5;
     }
     
     #customersTableBody tr {
-    cursor: pointer;
-}
+      cursor: pointer;
+    }
 
-#customersTableBody tr:hover {
-    background-color: #f0f0f0;
-}
+    dialog {
+      width: 650px;
+      max-width: 92%;
+      border: none;
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    }
 
-dialog {
-    width: 600px;
-    max-width: 90%;
-    border: none;
-    border-radius: 8px;
-    padding: 20px;
-}
-    
+    .dialog-actions {
+      margin-top: 20px;
+      text-align: right;
+    }
+
+    @media (max-width: 768px) {
+      .row {
+        grid-template-columns: 1fr;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+
+      .button-group button {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Admin Dashboard</h1>
-    <button onclick="logout()">Logout</button>
-    <p>This page is used to test the admin item endpoints from the frontend.</p>
+    <div class="button-group">
+      <button onclick="logout()">Logout</button>
+    </div>
+    <p>This page is used to manage store items, stock, customers, and customer orders from the frontend.</p>
 
     <div id="messageBox"></div>
 
-    <h2>Create / Update Item</h2>
+    <div class="panel">
+      <h2>Create / Update Item</h2>
 
-    <div class="row">
-      <div>
-        <label for="title">Title</label>
-        <input type="text" id="title" />
+      <div class="row">
+        <div>
+          <label for="title">Title</label>
+          <input type="text" id="title" />
+        </div>
+
+        <div>
+          <label for="manufacturer">Manufacturer</label>
+          <input type="text" id="manufacturer" />
+        </div>
+
+        <div>
+          <label for="category">Category</label>
+          <input type="text" id="category" />
+        </div>
+
+        <div>
+          <label for="price">Price</label>
+          <input type="number" step="0.01" id="price" />
+        </div>
+
+        <div>
+          <label for="stockQuantity">Stock Quantity</label>
+          <input type="number" id="stockQuantity" />
+        </div>
+
+        <div>
+          <label for="itemId">Selected Item ID</label>
+          <input type="number" id="itemId" />
+        </div>
       </div>
 
-      <div>
-        <label for="manufacturer">Manufacturer</label>
-        <input type="text" id="manufacturer" />
-      </div>
+      <label for="description">Description</label>
+      <textarea id="description" rows="4"></textarea>
 
-      <div>
-        <label for="category">Category</label>
-        <input type="text" id="category" />
-      </div>
-
-      <div>
-        <label for="price">Price</label>
-        <input type="number" step="0.01" id="price" />
-      </div>
-
-      <div>
-        <label for="stockQuantity">Stock Quantity</label>
-        <input type="number" id="stockQuantity" />
-      </div>
-
-      <div>
-        <label for="itemId">Selected Item ID</label>
-        <input type="number" id="itemId" />
-      </div>
-    </div>
-
-    <label for="description">Description</label>
-    <textarea id="description" rows="4"></textarea>
-
-    <button onclick="createItem()">Create Item</button>
-    <button onclick="updateItem()">Update Item</button>
-    <button onclick="deleteItem()">Delete Item</button>
-    <button onclick="loadItems()">Load All Items</button>
-
-    <h2>Search and Sort</h2>
-
-    <div class="row">
-      <div>
-        <label for="searchTitle">Search Title</label>
-        <input type="text" id="searchTitle" />
-      </div>
-
-      <div>
-        <label for="searchManufacturer">Search Manufacturer</label>
-        <input type="text" id="searchManufacturer" />
-      </div>
-
-      <div>
-        <label for="searchCategory">Search Category</label>
-        <input type="text" id="searchCategory" />
-      </div>
-
-      <div>
-        <label for="sortBy">Sort By</label>
-        <select id="sortBy">
-          <option value="">None</option>
-          <option value="title">Title</option>
-          <option value="manufacturer">Manufacturer</option>
-          <option value="category">Category</option>
-          <option value="price">Price</option>
-          <option value="stockQuantity">Stock Quantity</option>
-        </select>
-      </div>
-
-      <div>
-        <label for="sortDirection">Sort Direction</label>
-        <select id="sortDirection">
-          <option value="asc">Ascending</option>
-          <option value="desc">Descending</option>
-        </select>
-      </div>
-
-      <div>
-        <label for="newStockQuantity">New Stock Quantity</label>
-        <input type="number" id="newStockQuantity" />
+      <div class="button-group">
+        <button onclick="createItem()">Create Item</button>
+        <button onclick="updateItem()">Update Item</button>
+        <button onclick="deleteItem()">Delete Item</button>
+        <button onclick="loadItems()">Load All Items</button>
       </div>
     </div>
 
-    <button onclick="searchItems()">Search Items</button>
-    <button onclick="updateStock()">Update Stock</button>
+    <div class="panel">
+      <h2>Search and Sort</h2>
 
-    <h2>Items</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Title</th>
-          <th>Manufacturer</th>
-          <th>Category</th>
-          <th>Price</th>
-          <th>Stock</th>
-        </tr>
-      </thead>
-      <tbody id="itemsTableBody"></tbody>
-    </table>
+      <div class="row">
+        <div>
+          <label for="searchTitle">Search Title</label>
+          <input type="text" id="searchTitle" />
+        </div>
+
+        <div>
+          <label for="searchManufacturer">Search Manufacturer</label>
+          <input type="text" id="searchManufacturer" />
+        </div>
+
+        <div>
+          <label for="searchCategory">Search Category</label>
+          <input type="text" id="searchCategory" />
+        </div>
+
+        <div>
+          <label for="sortBy">Sort By</label>
+          <select id="sortBy">
+            <option value="">None</option>
+            <option value="title">Title</option>
+            <option value="manufacturer">Manufacturer</option>
+            <option value="category">Category</option>
+            <option value="price">Price</option>
+            <option value="stockQuantity">Stock Quantity</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="sortDirection">Sort Direction</label>
+          <select id="sortDirection">
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="newStockQuantity">New Stock Quantity</label>
+          <input type="number" id="newStockQuantity" />
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button onclick="searchItems()">Search Items</button>
+        <button onclick="updateStock()">Update Stock</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Items</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Manufacturer</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Stock</th>
+          </tr>
+        </thead>
+        <tbody id="itemsTableBody"></tbody>
+      </table>
+    </div>
      
-  <h2>Customers</h2>
-<button onclick="loadCustomers()">Load Customers</button>
+    <div class="panel">
+      <h2>Customers</h2>
+      <div class="button-group">
+        <button onclick="loadCustomers()">Load Customers</button>
+      </div>
 
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Address</th>
-        </tr>
-    </thead>
-    <tbody id="customersTableBody"></tbody>
-</table>
-  
+      <table>
+          <thead>
+              <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Address</th>
+              </tr>
+          </thead>
+          <tbody id="customersTableBody"></tbody>
+      </table>
+    </div>
   </div>
  
 
   <script>
-    // This is the backend endpoint for all item admin actions
     const baseUrl = 'http://localhost:8080/admin/items';
 
-    // show feedback to the user on the page
     function showMessage(text, isError = false) {
       const box = document.getElementById('messageBox');
       box.innerHTML = `<div class="message ${isError ? 'error' : 'success'}">${text}</div>`;
     }
 
-    // ollect all item form values in one object
     function getItemData() {
       return {
         title: document.getElementById('title').value.trim(),
@@ -246,7 +350,6 @@ dialog {
       };
     }
 
-    //  create a new item
     async function createItem() {
       try {
         const response = await fetch(baseUrl, {
@@ -269,7 +372,6 @@ dialog {
       }
     }
 
-    // I use this function to update an existing item
     async function updateItem() {
       const id = document.getElementById('itemId').value;
 
@@ -299,7 +401,6 @@ dialog {
       }
     }
 
-    // delete an item by id
     async function deleteItem() {
       const id = document.getElementById('itemId').value;
 
@@ -327,7 +428,6 @@ dialog {
       }
     }
 
-    // update only the stock value of an item
     async function updateStock() {
       const id = document.getElementById('itemId').value;
       const newStockQuantity = document.getElementById('newStockQuantity').value;
@@ -360,7 +460,6 @@ dialog {
       }
     }
 
-    // load all items from the db
     async function loadItems() {
       try {
         const response = await fetch(baseUrl);
@@ -377,7 +476,6 @@ dialog {
       }
     }
 
-    //  search and sort items using query parameters
     async function searchItems() {
       const title = document.getElementById('searchTitle').value.trim();
       const manufacturer = document.getElementById('searchManufacturer').value.trim();
@@ -408,7 +506,6 @@ dialog {
       }
     }
 
-    //  display the items in the table
     function renderItems(items) {
       const tableBody = document.getElementById('itemsTableBody');
       tableBody.innerHTML = '';
@@ -428,12 +525,10 @@ dialog {
       });
     }
 
-    // stop quotes breaking the row click function
     function escapeText(text) {
       return String(text ?? '').replace(/'/g, "\\'");
     }
 
-    //  load a selected item back into the form
     function selectItem(id, title, manufacturer, category, price, description, stockQuantity) {
       document.getElementById('itemId').value = id;
       document.getElementById('title').value = title;
@@ -445,15 +540,10 @@ dialog {
     }
     
     function logout() {
-        // clear any stored session data
         localStorage.removeItem("adminId");
-
-        // redirect to launcher page
         window.location.href = "launcher.html";
     }
  
-
-    //  load all items when the page first opens
     loadItems();
     
     async function loadCustomers() {
@@ -544,11 +634,13 @@ dialog {
     loadCustomers();
     
   </script>
+
   <dialog id="customerOrdersDialog">
     <h2>Customer Orders</h2>
     <div id="customerOrdersContent"></div>
-    <br>
-    <button onclick="document.getElementById('customerOrdersDialog').close()">Close</button>
-</dialog>
+    <div class="dialog-actions">
+      <button onclick="document.getElementById('customerOrdersDialog').close()">Close</button>
+    </div>
+  </dialog>
 </body>
 </html>

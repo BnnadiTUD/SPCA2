@@ -5,23 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Cart</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: Arial, sans-serif;
-            margin: 30px;
-            background: #f4f4f4;
+            margin: 0;
+            padding: 30px;
+            background: linear-gradient(to bottom right, #ececec, #dcdcdc);
+            color: #222;
         }
 
         h1, h2 {
-            text-align: center;
+            margin: 0;
+            font-weight: bold;
+        }
+
+        .page-wrapper {
+            max-width: 1000px;
+            margin: 0 auto;
         }
 
         .top-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 22px;
             flex-wrap: wrap;
             gap: 10px;
+            background: white;
+            padding: 20px 24px;
+            border-radius: 16px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+            border: 1px solid #d7d7d7;
         }
 
         .button-row {
@@ -31,8 +48,19 @@
         }
 
         button {
-            padding: 10px 14px;
+            padding: 12px 14px;
             cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            background: #4f4f4f;
+            color: white;
+            font-weight: bold;
+            transition: background 0.2s ease, transform 0.15s ease;
+        }
+
+        button:hover {
+            background: #2f2f2f;
+            transform: translateY(-1px);
         }
 
         .cart-container {
@@ -43,57 +71,79 @@
 
         .cart-card {
             background: white;
-            padding: 18px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+            border: 1px solid #d7d7d7;
         }
 
         .cart-card h3 {
             margin-top: 0;
+            margin-bottom: 14px;
+            font-size: 21px;
+            font-weight: bold;
+        }
+
+        .cart-card p {
+            margin: 8px 0;
+            color: #444;
         }
 
         .summary-box {
             background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
             margin-top: 25px;
-            max-width: 500px;
+            max-width: 520px;
             margin-left: auto;
             margin-right: auto;
+            border: 1px solid #d7d7d7;
+        }
+
+        .summary-box h2 {
+            margin-bottom: 16px;
         }
 
         .message {
             text-align: center;
             margin-top: 20px;
             font-weight: bold;
+            color: #333;
         }
 
         .empty-cart {
             text-align: center;
             margin-top: 40px;
             font-size: 18px;
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+            border: 1px solid #d7d7d7;
         }
     </style>
 </head>
 <body>
 
-    <div class="top-bar">
-        <h1>My Cart</h1>
-        <div class="button-row">
-            <button onclick="goBack()">Back to Dashboard</button>
-            <button onclick="logout()">Logout</button>
+    <div class="page-wrapper">
+        <div class="top-bar">
+            <h1>My Cart</h1>
+            <div class="button-row">
+                <button onclick="goBack()">Back to Dashboard</button>
+                <button onclick="logout()">Logout</button>
+            </div>
         </div>
-    </div>
 
-    <div id="message" class="message"></div>
-    <div id="cartContainer" class="cart-container"></div>
+        <div id="message" class="message"></div>
+        <div id="cartContainer" class="cart-container"></div>
 
-    <div id="summaryBox" class="summary-box" style="display:none;">
-        <h2>Order Summary</h2>
-        <p><strong>Total Items:</strong> <span id="totalItems">0</span></p>
-        <p><strong>Total Price:</strong> €<span id="totalPrice">0.00</span></p>
-        <button onclick="checkout()" style="width:100%;">Checkout</button>
+        <div id="summaryBox" class="summary-box" style="display:none;">
+            <h2>Order Summary</h2>
+            <p><strong>Total Items:</strong> <span id="totalItems">0</span></p>
+            <p><strong>Total Price:</strong> €<span id="totalPrice">0.00</span></p>
+            <button onclick="checkout()" style="width:100%; margin-top:10px;">Checkout</button>
+        </div>
     </div>
 
     <script>
@@ -187,8 +237,6 @@
                 }
 
                 messageDiv.innerText = "Item removed";
-                
-                // reload cart UI
                 loadCart();
 
             } catch (error) {
