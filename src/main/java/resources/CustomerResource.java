@@ -8,6 +8,8 @@ import dtos.ItemResponse;
 import dtos.LoginRequest;
 import dtos.OrderItemResponse;
 import dtos.OrderResponse;
+import dtos.ReviewRequest;
+import dtos.ReviewResponse;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -19,6 +21,7 @@ import model.OrderItem;
 import services.AdminFacade;
 import services.CustomerService;
 import services.OrderService;
+import services.ReviewService;
 import services.CartService;
 
 
@@ -35,6 +38,8 @@ public class CustomerResource {
     AdminFacade adminFacade;
     @Inject
     OrderService orderService;
+    @Inject
+    ReviewService rs;
     @POST
     @Path("/register")
     public Response register(CustomerRegRequest req) {
@@ -123,5 +128,17 @@ public class CustomerResource {
     @Path("/orders/{orderId}/items")
     public List<OrderItemResponse> getOrderItems(@PathParam("orderId") Long orderId) {
         return orderService.getOrderItems(orderId);
+    }
+    
+    @POST
+    @Path("/items/{itemId}/reviews")
+    public ReviewResponse addReview(@PathParam("itemId") Long itemId, ReviewRequest request) {
+        return rs.addReview(itemId, request);
+    }
+
+    @GET
+    @Path("/items/{itemId}/reviews")
+    public List<ReviewResponse> getReviewsForItem(@PathParam("itemId") Long itemId) {
+        return rs.getReviewsForItem(itemId);
     }
 }

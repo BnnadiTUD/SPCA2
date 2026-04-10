@@ -11,7 +11,8 @@ public class ItemResponse {
     public int stockQuantity;
     
     public String pictureLink;
-
+    public double averageRating;
+    public long reviewCount;
 
 
     public static ItemResponse fromEntity(Item item) {

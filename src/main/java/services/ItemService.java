@@ -1,4 +1,5 @@
 package services;
+
 import services.observer.StockInventManager;
 import services.observer.StockEvent;
 import services.observer.StockEventType;
@@ -27,7 +28,7 @@ public class ItemService {
 
     @Inject
     ItemRepo iRepository;
-    
+
     @Inject
     StockInventManager inventoryManager;
 
@@ -37,6 +38,9 @@ public class ItemService {
     @Inject
     ItemFactory itemFactory;
 
+    @Inject
+    ReviewService rs;
+
     public List<ItemResponse> getAllItems(String sortBy, String sortDirection) {
         List<Item> items = iRepository.findAllItems();
 
@@ -44,7 +48,7 @@ public class ItemService {
 
         List<ItemResponse> responses = new ArrayList<>();
         for (Item item : items) {
-            responses.add(ItemResponse.fromEntity(item));
+            responses.add(buildItemResponse(item));
         }
 
         return responses;
@@ -58,39 +62,39 @@ public class ItemService {
         Item item = iRepository.findItemById(id)
                 .orElseThrow(() -> new NotFoundException("Item not found with id: " + id));
 
-        return ItemResponse.fromEntity(item);
+        return buildItemResponse(item);
     }
 
     public List<ItemResponse> searchItems(String title, String manufacturer, String category,
-            String sortBy, String sortDirection) {
+                                          String sortBy, String sortDirection) {
 
-	List<Item> items = iRepository.findAllItems();
-	
-	ItemFilterHandler filterHandler = new ItemFilterHandler();
-	
-	if (title != null && !title.isBlank()) {
-	filterHandler.addFilter(new TitleFilter(title));
-	}
-	
-	if (manufacturer != null && !manufacturer.isBlank()) {
-	filterHandler.addFilter(new ManufacturerFilter(manufacturer));
-	}
-	
-	if (category != null && !category.isBlank()) {
-	filterHandler.addFilter(new CategoryFilter(category));
-	}
-	
-	items = filterHandler.applyFilters(items);
-	
-	sortItems(items, sortBy, sortDirection);
-	
-	List<ItemResponse> responses = new ArrayList<>();
-	for (Item item : items) {
-	responses.add(ItemResponse.fromEntity(item));
-	}
-	
-	return responses;
-	}
+        List<Item> items = iRepository.findAllItems();
+
+        ItemFilterHandler filterHandler = new ItemFilterHandler();
+
+        if (title != null && !title.isBlank()) {
+            filterHandler.addFilter(new TitleFilter(title));
+        }
+
+        if (manufacturer != null && !manufacturer.isBlank()) {
+            filterHandler.addFilter(new ManufacturerFilter(manufacturer));
+        }
+
+        if (category != null && !category.isBlank()) {
+            filterHandler.addFilter(new CategoryFilter(category));
+        }
+
+        items = filterHandler.applyFilters(items);
+
+        sortItems(items, sortBy, sortDirection);
+
+        List<ItemResponse> responses = new ArrayList<>();
+        for (Item item : items) {
+            responses.add(buildItemResponse(item));
+        }
+
+        return responses;
+    }
 
     @Transactional
     public ItemResponse createItem(ItemRequest request) {
@@ -105,7 +109,7 @@ public class ItemService {
                 StockEventType.ITEM_CREATED
         ));
 
-        return ItemResponse.fromEntity(item);
+        return buildItemResponse(item);
     }
 
     @Transactional
@@ -115,7 +119,7 @@ public class ItemService {
 
         itemFactory.updateItem(item, request);
 
-        return ItemResponse.fromEntity(item);
+        return buildItemResponse(item);
     }
 
     @Transactional
@@ -155,10 +159,9 @@ public class ItemService {
                 StockEventType.STOCK_UPDATED
         ));
 
-        return ItemResponse.fromEntity(item);
+        return buildItemResponse(item);
     }
 
-    // I use the selected strategy to sort the list in memory
     private void sortItems(List<Item> items, String sortBy, String sortDirection) {
         ItemSortStrategy strategy = sortStrategyFactory.getStrategy(sortBy);
 
@@ -171,5 +174,22 @@ public class ItemService {
         if ("desc".equalsIgnoreCase(sortDirection)) {
             Collections.reverse(items);
         }
+    }
+
+    private ItemResponse buildItemResponse(Item item) {
+        ItemResponse response = new ItemResponse();
+
+        response.id = item.id;
+        response.title = item.title;
+        response.manufacturer = item.manufacturer;
+        response.price = item.price;
+        response.category = item.category;
+        response.stockQuantity = item.stockQuantity;
+        response.pictureLink = item.pictureLink;
+
+        response.averageRating = rs.getAverageRatingForItem(item.id);
+        response.reviewCount = rs.getReviewCountForItem(item.id);
+
+        return response;
     }
 }
