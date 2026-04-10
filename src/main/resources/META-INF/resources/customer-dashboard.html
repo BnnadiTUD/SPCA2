@@ -246,7 +246,7 @@
             if (sortBy) params.append("sortBy", sortBy);
             if (sortDirection) params.append("sortDirection", sortDirection);
 
-            const url = "customers/items/search?" + params.toString();
+            const url = "/customers/items/search?" + params.toString();
 
             try {
                 const response = await fetch(url);
@@ -278,13 +278,134 @@
                         <p><strong>Category:</strong> ${item.category ?? "N/A"}</p>
                         <p><strong>Price:</strong> €${item.price ?? "N/A"}</p>
                         <p><strong>Stock:</strong> ${item.stockQuantity ?? item.stock ?? "N/A"}</p>
-                        <button onclick="addToCart(${item.id})">Add to Cart</button>
+                        <p><strong>Average Rating:</strong> ${Number(item.averageRating ?? 0).toFixed(1)} / 5</p>
+                        <p><strong>Reviews:</strong> ${item.reviewCount ?? 0}</p>
+
+                        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
+                            <button onclick="addToCart(${item.id})" style="width:auto;">Add to Cart</button>
+                            <button onclick="toggleReviews(${item.id})" style="width:auto;">View Reviews</button>
+                            <button onclick="showReviewForm(${item.id})" style="width:auto;">Leave Review</button>
+                        </div>
+
+                        <div id="reviews-${item.id}" style="display:none; margin-top:14px;"></div>
+                        <div id="review-form-${item.id}" style="display:none; margin-top:14px;"></div>
                     `;
                     container.appendChild(card);
                 });
             } catch (error) {
                 container.innerHTML = "";
                 messageDiv.innerText = error.message;
+            }
+        }
+        async function toggleReviews(itemId) {
+            const reviewsDiv = document.getElementById(`reviews-${itemId}`);
+
+            if (reviewsDiv.style.display === "block") {
+                reviewsDiv.style.display = "none";
+                reviewsDiv.innerHTML = "";
+                return;
+            }
+
+            try {
+                const response = await fetch(`/customers/items/${itemId}/reviews`);
+
+                if (!response.ok) {
+                    throw new Error("Failed to load reviews");
+                }
+
+                const reviews = await response.json();
+
+                if (!reviews || reviews.length === 0) {
+                    reviewsDiv.innerHTML = "<p>No reviews yet.</p>";
+                } else {
+                    reviewsDiv.innerHTML = `
+                        <h4 style="margin-bottom:10px;">Customer Reviews</h4>
+                        ${reviews.map(review => `
+                            <div style="border:1px solid #ccc; padding:10px; margin-bottom:10px; border-radius:8px; background:#fafafa;">
+                                <p><strong>${review.customerName ?? "Anonymous"}</strong> rated it ${review.rating}/5</p>
+                                <p>${review.comment ?? ""}</p>
+                                <small>${review.createdAt ?? ""}</small>
+                            </div>
+                        `).join("")}
+                    `;
+                }
+
+                reviewsDiv.style.display = "block";
+            } catch (error) {
+                reviewsDiv.innerHTML = `<p style="color:red;">${error.message}</p>`;
+                reviewsDiv.style.display = "block";
+            }
+        }
+        
+        function showReviewForm(itemId) {
+            const formDiv = document.getElementById(`review-form-${itemId}`);
+
+            if (formDiv.style.display === "block") {
+                formDiv.style.display = "none";
+                formDiv.innerHTML = "";
+                return;
+            }
+
+            formDiv.innerHTML = `
+                <h4 style="margin-bottom:10px;">Leave a Review</h4>
+                <label for="rating-${itemId}">Rating</label>
+                <select id="rating-${itemId}">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5" selected>5</option>
+                </select>
+
+                <label for="comment-${itemId}" style="margin-top:10px;">Comment</label>
+                <textarea id="comment-${itemId}" rows="3" style="width:100%; padding:10px; border-radius:8px; border:1px solid #c8c8c8;"></textarea>
+
+                <div style="margin-top:10px;">
+                    <button onclick="submitReview(${itemId})" style="width:auto;">Submit Review</button>
+                </div>
+            `;
+
+            formDiv.style.display = "block";
+        }
+        
+        async function submitReview(itemId) {
+            const customerId = localStorage.getItem("customerId");
+            const rating = document.getElementById(`rating-${itemId}`).value;
+            const comment = document.getElementById(`comment-${itemId}`).value.trim();
+
+            if (!customerId) {
+                alert("Customer not logged in.");
+                return;
+            }
+
+            try {
+                const response = await fetch(`/customers/items/${itemId}/reviews`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        customerId: Number(customerId),
+                        rating: Number(rating),
+                        comment: comment
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(await response.text() || "Failed to submit review");
+                }
+
+                alert("Review submitted successfully");
+
+                const formDiv = document.getElementById(`review-form-${itemId}`);
+                formDiv.style.display = "none";
+                formDiv.innerHTML = "";
+
+                await loadItems();
+                setTimeout(() => toggleReviews(itemId), 100);
+
+            } catch (error) {
+                alert(error.message);
             }
         }
         
