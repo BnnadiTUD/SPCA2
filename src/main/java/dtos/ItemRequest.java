@@ -13,4 +13,7 @@ public class ItemRequest {
     public String description;
 
     public Integer stockQuantity;
+    
+    public String pictureLink;
+
 }

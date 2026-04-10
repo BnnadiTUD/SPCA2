@@ -265,8 +265,8 @@
                 }
 
                 items.forEach(item => {
-                    const imageHtml = item.imageUrl
-                        ? `<img class="item-image" src="${item.imageUrl}" alt="${item.title}">`
+                    const imageHtml = item.pictureLink
+                        ? `<img class="item-image" src="${item.pictureLink}" alt="${item.title}">`
                         : `<div class="item-image"></div>`;
 
                     const card = document.createElement("div");
@@ -277,7 +277,7 @@
                         <p><strong>Manufacturer:</strong> ${item.manufacturer ?? "N/A"}</p>
                         <p><strong>Category:</strong> ${item.category ?? "N/A"}</p>
                         <p><strong>Price:</strong> €${item.price ?? "N/A"}</p>
-                        <p><strong>Stock:</strong> ${item.stockLevel ?? item.stock ?? "N/A"}</p>
+                        <p><strong>Stock:</strong> ${item.stockQuantity ?? item.stock ?? "N/A"}</p>
                         <button onclick="addToCart(${item.id})">Add to Cart</button>
                     `;
                     container.appendChild(card);

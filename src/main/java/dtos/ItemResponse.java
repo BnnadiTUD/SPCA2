@@ -9,6 +9,9 @@ public class ItemResponse {
     public double price;
     public String description;
     public int stockQuantity;
+    
+    public String pictureLink;
+
 
 
     public static ItemResponse fromEntity(Item item) {
@@ -20,7 +23,7 @@ public class ItemResponse {
         response.price = item.price;
         response.description = item.description;
         response.stockQuantity = item.stockQuantity;
-
+response.pictureLink = item.pictureLink;
         return response;
     }
 }
