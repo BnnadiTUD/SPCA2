@@ -329,6 +329,7 @@
                   <th>Name</th>
                   <th>Email</th>
                   <th>Address</th>
+                  <th>Prefferred Payment Method</th>
               </tr>
           </thead>
           <tbody id="customersTableBody"></tbody>
@@ -594,7 +595,8 @@
                 row.innerHTML = `
                     <td>${customer.name}</td>
                     <td>${customer.email}</td>
-                    <td>${customer.address || ""}</td>
+                    <td>${customer.address}</td>
+                    <td>${customer.preferredPaymentMethod || ""}</td>
                 `;
 
                 row.onclick = () => openCustomerOrdersDialog(customer.id, customer.name);

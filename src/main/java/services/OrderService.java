@@ -1,6 +1,5 @@
 package services;
 
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,9 +22,9 @@ import model.OrderItem;
 
 @ApplicationScoped
 public class OrderService {
-	
-	@Inject
-	StockInventManager inventoryManager;
+    
+    @Inject
+    StockInventManager inventoryManager;
 
     @Transactional
     public Order checkout(Long customerId) {
@@ -48,6 +47,7 @@ public class OrderService {
         order.customer = customer;
         order.orderDate = LocalDateTime.now();
         order.orderTotal = 0.0;
+        order.paymentMethod = customer.preferredPaymentMethod; // ADD THIS
         order.persist();
 
         double total = 0.0;
@@ -66,11 +66,11 @@ public class OrderService {
             item.stockQuantity -= cartItem.quantity;
 
             inventoryManager.notifyObservers(new StockEvent(
-                    item.id,
-                    item.title,
-                    oldStock,
-                    item.stockQuantity,
-                    StockEventType.STOCK_REDUCED_BY_ORDER
+                item.id,
+                item.title,
+                oldStock,
+                item.stockQuantity,
+                StockEventType.STOCK_REDUCED_BY_ORDER
             ));
 
             OrderItem orderItem = new OrderItem();
@@ -92,7 +92,6 @@ public class OrderService {
         return order;
     }
 
-
     public List<OrderResponse> getCustomerOrders(Long customerId) {
         List<Order> orders = Order.find("customer.id", customerId).list();
 
@@ -100,12 +99,12 @@ public class OrderService {
             .map(order -> new OrderResponse(
                 order.id,
                 order.orderDate,
-                order.orderTotal
+                order.orderTotal,
+                order.paymentMethod
             ))
             .toList();
     }
-
-
+ 
     public List<OrderItemResponse> getOrderItems(Long orderId) {
         List<OrderItem> items = OrderItem.find("order.id", orderId).list();
 

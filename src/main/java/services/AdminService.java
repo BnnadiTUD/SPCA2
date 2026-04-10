@@ -54,10 +54,11 @@ public class AdminService {
                 customer.id,
                 customer.name,
                 customer.email,
-                customer.address
+                customer.address,
+                customer.preferredPaymentMethod
             ))
             .toList();
-    }
+    }   
 
     public List<OrderResponse> getCustomerOrders(Long customerId) {
         List<Order> orders = Order.find("customer.id", customerId).list();
@@ -66,7 +67,8 @@ public class AdminService {
             .map(order -> new OrderResponse(
                 order.id,
                 order.orderDate,
-                order.orderTotal
+                order.orderTotal,
+                order.paymentMethod
             ))
             .toList();
     }

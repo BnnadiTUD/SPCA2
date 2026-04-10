@@ -245,10 +245,19 @@
         }
 
         async function checkout() {
-            const customerId = localStorage.getItem("customerId");
+            const storedCustomer = localStorage.getItem("customer");
+            const customer = storedCustomer ? JSON.parse(storedCustomer) : null;
+
+            const customerId = customer?.id || localStorage.getItem("customerId");
+            const preferredPaymentMethod = customer?.preferredPaymentMethod || localStorage.getItem("preferredPaymentMethod");
 
             if (!customerId) {
                 alert("No logged-in customer found.");
+                return;
+            }
+
+            if (!preferredPaymentMethod) {
+                alert("No preferred payment method found. Please log in again or register again.");
                 return;
             }
 
@@ -263,7 +272,7 @@
                     throw new Error(text || "Checkout failed");
                 }
 
-                alert("Order placed successfully!");
+                alert("Order placed successfully using " + preferredPaymentMethod.replaceAll("_", " ") + "!");
                 window.location.href = "orders.html";
 
             } catch (error) {

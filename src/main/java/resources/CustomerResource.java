@@ -50,7 +50,8 @@ public class CustomerResource {
             "CUSTOMER",
             c.id,
             c.name,
-            c.email
+            c.email,
+            c.preferredPaymentMethod
         );
 
         return Response.ok(response).build();

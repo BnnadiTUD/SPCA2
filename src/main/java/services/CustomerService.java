@@ -7,35 +7,37 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotAuthorizedException;
 import model.Customer;
 
-//service class for customer logic not actually customer service ;)
+// service class for customer logic not actually customer service ;)
 
 @ApplicationScoped
 public class CustomerService {
 
-	@Transactional
+    @Transactional
     public Customer register(CustomerRegRequest req) {
         Customer c = new Customer();
         c.name = req.name;
         c.email = req.email;
         c.password = req.password;
         c.address = req.address;
+        c.preferredPaymentMethod = req.preferredPaymentMethod;
         c.persist();
         return c;
     }
 
-	public CustomerLoginResponse login(String email, String password) {
-	    Customer c = Customer.find("email", email).firstResult();
+    public CustomerLoginResponse login(String email, String password) {
+        Customer c = Customer.find("email", email).firstResult();
 
-	    if (c == null || !c.password.equals(password)) {
-	        throw new NotAuthorizedException("Invalid credentials");
-	    }
+        if (c == null || !c.password.equals(password)) {
+            throw new NotAuthorizedException("Invalid credentials");
+        }
 
-	    return new CustomerLoginResponse(
-	        "Customer login successful",
-	        "CUSTOMER",
-	        c.id,
-	        c.name,
-	        c.email
-	    );
-	}
+        return new CustomerLoginResponse(
+            "Customer login successful",
+            "CUSTOMER",
+            c.id,
+            c.name,
+            c.email,
+            c.preferredPaymentMethod
+        );
+    }
 }

@@ -165,6 +165,11 @@
                 <input type="email" id="customerRegisterEmail" placeholder="Email">
                 <input type="password" id="customerRegisterPassword" placeholder="Password">
                 <input type="text" id="customerRegisterAddress" placeholder="Address">
+                <select id="paymentMethod">
+    <option value="CARD">Card</option>
+    <option value="CASH_ON_DELIVERY">Cash on Delivery</option>
+    <option value="PAYPAL">PayPal</option>
+				</select>
                 <button onclick="customerRegister()">Register</button>
                 <div class="message" id="customerRegisterMessage"></div>
             </div>
@@ -243,9 +248,14 @@
                 }
 
                 const data = await response.json();
+
+                // tore everything including payment method
+                localStorage.setItem("customer", JSON.stringify(data));
+
                 localStorage.setItem("customerName", data.name);
                 localStorage.setItem("customerEmail", data.email);
                 localStorage.setItem("customerId", data.id);
+                localStorage.setItem("preferredPaymentMethod", data.preferredPaymentMethod); 
 
                 window.location.href = "customer-dashboard.html";
             } catch (error) {
@@ -258,13 +268,20 @@
             const email = document.getElementById("customerRegisterEmail").value;
             const password = document.getElementById("customerRegisterPassword").value;
             const address = document.getElementById("customerRegisterAddress").value;
+            const paymentMethod = document.getElementById("paymentMethod").value; // NEW
             const message = document.getElementById("customerRegisterMessage");
 
             try {
                 const response = await fetch("/customers/register", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ name, email, password, address })
+                    body: JSON.stringify({
+                        name,
+                        email,
+                        password,
+                        address,
+                        preferredPaymentMethod: paymentMethod // NEW
+                    })
                 });
 
                 if (!response.ok) {
@@ -272,9 +289,14 @@
                 }
 
                 const data = await response.json();
+
+                // ✅ store everything
+                localStorage.setItem("customer", JSON.stringify(data));
+
                 localStorage.setItem("customerName", data.name);
                 localStorage.setItem("customerEmail", data.email);
                 localStorage.setItem("customerId", data.id);
+                localStorage.setItem("preferredPaymentMethod", data.preferredPaymentMethod); // NEW
 
                 window.location.href = "customer-dashboard.html";
             } catch (error) {
