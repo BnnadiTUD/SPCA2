@@ -67,8 +67,12 @@ public class AdminService {
             .map(order -> new OrderResponse(
                 order.id,
                 order.orderDate,
+                order.subtotal,
+                order.discountAmount,
                 order.orderTotal,
                 order.paymentMethod
+              
+                
             ))
             .toList();
     }

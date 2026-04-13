@@ -6,25 +6,31 @@ import java.util.List;
 import dtos.OrderItemResponse;
 import dtos.OrderResponse;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 import model.Cart;
-import jakarta.inject.Inject;
-import services.observer.StockInventManager;
-import services.observer.StockEvent;
-import services.observer.StockEventType;
 import model.CartItem;
 import model.Customer;
 import model.Item;
 import model.Order;
 import model.OrderItem;
+import model.PaymentMethod;
+import services.discount.DiscountStrategy;
+import services.discount.DiscountStrategyFactory;
+import services.observer.StockEvent;
+import services.observer.StockEventType;
+import services.observer.StockInventManager;
 
 @ApplicationScoped
 public class OrderService {
-    
+
     @Inject
     StockInventManager inventoryManager;
+
+    @Inject
+    DiscountStrategyFactory discountStrategyFactory;
 
     @Transactional
     public Order checkout(Long customerId) {
@@ -46,31 +52,30 @@ public class OrderService {
         Order order = new Order();
         order.customer = customer;
         order.orderDate = LocalDateTime.now();
+        order.paymentMethod = customer.preferredPaymentMethod;
+        order.subtotal = 0.0;
+        order.discountAmount = 0.0;
         order.orderTotal = 0.0;
-        order.paymentMethod = customer.preferredPaymentMethod; // ADD THIS
         order.persist();
 
-        double total = 0.0;
+        double subtotal = 0.0;
 
         for (CartItem cartItem : cartItems) {
             Item item = cartItem.item;
-
             int oldStock = item.stockQuantity;
 
             if (item.stockQuantity < cartItem.quantity) {
-                throw new BadRequestException(
-                    "Not enough stock for item: " + item.title
-                );
+                throw new BadRequestException("Not enough stock for item: " + item.title);
             }
 
             item.stockQuantity -= cartItem.quantity;
 
             inventoryManager.notifyObservers(new StockEvent(
-                item.id,
-                item.title,
-                oldStock,
-                item.stockQuantity,
-                StockEventType.STOCK_REDUCED_BY_ORDER
+                    item.id,
+                    item.title,
+                    oldStock,
+                    item.stockQuantity,
+                    StockEventType.STOCK_REDUCED_BY_ORDER
             ));
 
             OrderItem orderItem = new OrderItem();
@@ -81,12 +86,19 @@ public class OrderService {
             orderItem.total = item.price * cartItem.quantity;
             orderItem.persist();
 
-            total += orderItem.total;
+            subtotal += orderItem.total;
         }
 
-        order.orderTotal = total;
+        PaymentMethod paymentMethod = customer.preferredPaymentMethod;
+        DiscountStrategy discountStrategy = discountStrategyFactory.getStrategy(paymentMethod);
+        double discountAmount = discountStrategy.calculateDiscount(subtotal);
+        double finalTotal = subtotal - discountAmount;
 
-        // clear cart after successful order creation
+        order.subtotal = subtotal;
+        order.discountAmount = discountAmount;
+        order.orderTotal = finalTotal;
+        order.paymentMethod = paymentMethod;
+
         CartItem.delete("cart", cart);
 
         return order;
@@ -96,26 +108,28 @@ public class OrderService {
         List<Order> orders = Order.find("customer.id", customerId).list();
 
         return orders.stream()
-            .map(order -> new OrderResponse(
-                order.id,
-                order.orderDate,
-                order.orderTotal,
-                order.paymentMethod
-            ))
-            .toList();
+                .map(order -> new OrderResponse(
+                        order.id,
+                        order.orderDate,
+                        order.subtotal,
+                        order.discountAmount,
+                        order.orderTotal,
+                        order.paymentMethod
+                ))
+                .toList();
     }
- 
+
     public List<OrderItemResponse> getOrderItems(Long orderId) {
         List<OrderItem> items = OrderItem.find("order.id", orderId).list();
 
         return items.stream()
-            .map(item -> new OrderItemResponse(
-                item.id,
-                item.item.title,
-                item.quantity,
-                item.priceForOne,
-                item.total
-            ))
-            .toList();
+                .map(item -> new OrderItemResponse(
+                        item.id,
+                        item.item.title,
+                        item.quantity,
+                        item.priceForOne,
+                        item.total
+                ))
+                .toList();
     }
 }
