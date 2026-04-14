@@ -16,9 +16,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import model.CartItem;
 import model.Customer;
-import model.Order;
-import model.OrderItem;
-import services.AdminFacade;
+
 import services.CustomerService;
 import services.OrderService;
 import services.ReviewService;
@@ -28,14 +26,13 @@ import services.CartService;
 @Path("/customers")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class CustomerResource {
+public class CustomerResource extends AbstractItemResource {
 
     @Inject
     CartService cartService;
     @Inject
     CustomerService service;
-    @Inject
-    AdminFacade adminFacade;
+
     @Inject
     OrderService orderService;
     @Inject
@@ -64,18 +61,24 @@ public class CustomerResource {
         return Response.ok(response).build();
     }
     
+    @Override
+    protected void beforeItemAccess() {
+        // Customer-specific hook
+        System.out.println("Customer item access");
+    }
+
     @GET
     @Path("/items")
     public List<ItemResponse> getAllItems(
             @QueryParam("sortBy") String sortBy,
             @QueryParam("sortDirection") String sortDirection) {
-        return adminFacade.getAllItems(sortBy, sortDirection);
+        return getAllItemsTemplate(sortBy, sortDirection);
     }
 
     @GET
     @Path("/items/{id}")
     public ItemResponse getItemById(@PathParam("id") Long id) {
-        return adminFacade.getItemById(id);
+        return getItemByIdTemplate(id);
     }
 
     @GET
@@ -86,7 +89,7 @@ public class CustomerResource {
             @QueryParam("category") String category,
             @QueryParam("sortBy") String sortBy,
             @QueryParam("sortDirection") String sortDirection) {
-        return adminFacade.searchItems(title, manufacturer, category, sortBy, sortDirection);
+        return searchItemsTemplate(title, manufacturer, category, sortBy, sortDirection);
     }
     
     @POST

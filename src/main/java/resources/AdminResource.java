@@ -20,23 +20,29 @@ import java.util.List;
 @Path("/admin")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class AdminResource {
+public class AdminResource extends AbstractItemResource {
 
 	@Inject
 	AdminFacade adminFacade;
+
+    @Override
+    protected void beforeItemAccess() {
+        // Admin-specific hook
+        System.out.println("Admin item access");
+    }
 
     @GET
     @Path("/items")
     public List<ItemResponse> getAllItems(
             @QueryParam("sortBy") String sortBy,
             @QueryParam("sortDirection") String sortDirection) {
-        return adminFacade.getAllItems(sortBy, sortDirection);
+        return getAllItemsTemplate(sortBy, sortDirection);
     }
 
     @GET
     @Path("/items/{id}")
     public ItemResponse getItemById(@PathParam("id") Long id) {
-        return adminFacade.getItemById(id);
+        return getItemByIdTemplate(id);
     }
 
     @GET
@@ -47,7 +53,7 @@ public class AdminResource {
             @QueryParam("category") String category,
             @QueryParam("sortBy") String sortBy,
             @QueryParam("sortDirection") String sortDirection) {
-        return adminFacade.searchItems(title, manufacturer, category, sortBy, sortDirection);
+        return searchItemsTemplate(title, manufacturer, category, sortBy, sortDirection);
     }
 
     @POST

@@ -4,8 +4,7 @@ import java.util.List;
 
 import dtos.ItemResponse;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.PathParam;
+
 import services.AdminFacade;
 
 public abstract class AbstractItemResource {
