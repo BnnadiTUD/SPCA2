@@ -90,7 +90,7 @@ public class OrderService {
         }
 
         PaymentMethod paymentMethod = customer.preferredPaymentMethod;
-        DiscountStrategy discountStrategy = discountStrategyFactory.getStrategy(paymentMethod);
+        DiscountStrategy discountStrategy = discountStrategyFactory.getStrategy(customer, paymentMethod, subtotal);
         double discountAmount = discountStrategy.calculateDiscount(subtotal);
         double finalTotal = subtotal - discountAmount;
 

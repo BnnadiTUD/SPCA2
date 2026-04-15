@@ -14,21 +14,33 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import services.observer.StockEvent;
+import services.observer.StockInventManager;
 
 import java.util.List;
+import java.util.Set;
 
 @Path("/admin")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class AdminResource extends AbstractItemResource {
+    private static final Set<String> ALLOWED_SORT_FIELDS = Set.of("title", "manufacturer", "category", "price", "stockQuantity");
 
 	@Inject
 	AdminFacade adminFacade;
+
+    @Inject
+    StockInventManager stockInventManager;
 
     @Override
     protected void beforeItemAccess() {
         // Admin-specific hook
         System.out.println("Admin item access");
+    }
+
+    @Override
+    protected boolean canUseSortField(String sortBy) {
+        return ALLOWED_SORT_FIELDS.contains(sortBy.toLowerCase());
     }
 
     @GET
@@ -113,5 +125,17 @@ public class AdminResource extends AbstractItemResource {
     @Path("/customers/{id}/orders")
     public List<OrderResponse> getCustomerOrders(@PathParam("id") Long id) {
         return adminFacade.getCustomerOrders(id);
+    }
+
+    @GET
+    @Path("/inventory/events")
+    public List<StockEvent> getRecentInventoryEvents() {
+        return stockInventManager.getRecentEvents();
+    }
+
+    @GET
+    @Path("/inventory/alerts")
+    public List<StockEvent> getLowStockAlerts() {
+        return stockInventManager.getLowStockAlerts();
     }
 }

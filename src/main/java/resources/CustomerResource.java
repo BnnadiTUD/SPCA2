@@ -1,6 +1,7 @@
 package resources;
 
 import java.util.List;
+import java.util.Set;
 
 import dtos.CustomerLoginResponse;
 import dtos.CustomerRegRequest;
@@ -27,6 +28,7 @@ import services.CartService;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class CustomerResource extends AbstractItemResource {
+    private static final Set<String> ALLOWED_SORT_FIELDS = Set.of("title", "manufacturer", "category", "price");
 
     @Inject
     CartService cartService;
@@ -65,6 +67,11 @@ public class CustomerResource extends AbstractItemResource {
     protected void beforeItemAccess() {
         // Customer-specific hook
         System.out.println("Customer item access");
+    }
+
+    @Override
+    protected boolean canUseSortField(String sortBy) {
+        return ALLOWED_SORT_FIELDS.contains(sortBy.toLowerCase());
     }
 
     @GET

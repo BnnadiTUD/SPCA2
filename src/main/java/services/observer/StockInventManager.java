@@ -31,4 +31,12 @@ public class StockInventManager implements InventorySubject {
             observer.update(event);
         }
     }
+
+    public List<StockEvent> getRecentEvents() {
+        return stockAuditObserver.getRecentEvents();
+    }
+
+    public List<StockEvent> getLowStockAlerts() {
+        return lowStockObserver.getActiveAlerts();
+    }
 }

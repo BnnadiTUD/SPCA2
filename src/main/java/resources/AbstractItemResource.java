@@ -15,6 +15,7 @@ public abstract class AbstractItemResource {
     // Template method for getting all items
     public final List<ItemResponse> getAllItemsTemplate(String sortBy, String sortDirection) {
         beforeItemAccess();
+        validateSortField(sortBy);
         validateSortDirection(sortDirection);
         return adminFacade.getAllItems(sortBy, sortDirection);
     }
@@ -35,11 +36,13 @@ public abstract class AbstractItemResource {
             String sortDirection) {
 
         beforeItemAccess();
+        validateSortField(sortBy);
         validateSortDirection(sortDirection);
         return adminFacade.searchItems(title, manufacturer, category, sortBy, sortDirection);
     }
 
     protected abstract void beforeItemAccess();
+    protected abstract boolean canUseSortField(String sortBy);
 
     // Shared validation steps
     protected void validateId(Long id) {
@@ -53,6 +56,16 @@ public abstract class AbstractItemResource {
             !sortDirection.equalsIgnoreCase("asc") &&
             !sortDirection.equalsIgnoreCase("desc")) {
             throw new IllegalArgumentException("sortDirection must be 'asc' or 'desc'");
+        }
+    }
+
+    protected void validateSortField(String sortBy) {
+        if (sortBy == null || sortBy.isBlank()) {
+            return;
+        }
+
+        if (!canUseSortField(sortBy)) {
+            throw new IllegalArgumentException("sortBy value is not allowed for this resource");
         }
     }
 }
