@@ -10,6 +10,7 @@ import model.Item;
 import repos.ItemRepo;
 import services.filter.CategoryFilter;
 import services.filter.ItemFilterHandler;
+import services.filter.ItemTypeFilter;
 import services.filter.ManufacturerFilter;
 import services.filter.TitleFilter;
 import services.strategy.ItemSortStrategy;
@@ -65,7 +66,7 @@ public class ItemService {
         return buildItemResponse(item);
     }
 
-    public List<ItemResponse> searchItems(String title, String manufacturer, String category,
+    public List<ItemResponse> searchItems(String title, String manufacturer, String category, String itemType,
                                           String sortBy, String sortDirection) {
 
         List<Item> items = iRepository.findAllItems();
@@ -82,6 +83,10 @@ public class ItemService {
 
         if (category != null && !category.isBlank()) {
             filterHandler.addFilter(new CategoryFilter(category));
+        }
+
+        if (itemType != null && !itemType.isBlank()) {
+            filterHandler.addFilter(new ItemTypeFilter(itemType));
         }
 
         items = filterHandler.applyFilters(items);
@@ -182,6 +187,7 @@ public class ItemService {
         response.id = item.id;
         response.title = item.title;
         response.manufacturer = item.manufacturer;
+        response.itemType = item.itemType != null ? item.itemType.name() : null;
         response.price = item.price;
         response.category = item.category;
         response.stockQuantity = item.stockQuantity;

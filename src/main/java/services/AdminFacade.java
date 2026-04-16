@@ -61,9 +61,9 @@ public class AdminFacade {
     }
 
     // Search items
-    public List<ItemResponse> searchItems(String title, String manufacturer, String category, String sortBy, String sortDirection) 
+    public List<ItemResponse> searchItems(String title, String manufacturer, String category, String itemType, String sortBy, String sortDirection) 
     {
-        return itemService.searchItems(title, manufacturer, category, sortBy, sortDirection);
+        return itemService.searchItems(title, manufacturer, category, itemType, sortBy, sortDirection);
     }
 
     // Update stock only

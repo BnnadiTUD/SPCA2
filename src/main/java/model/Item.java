@@ -2,6 +2,8 @@ package model;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 
 @Entity
 public class Item extends PanacheEntity {
@@ -9,6 +11,9 @@ public class Item extends PanacheEntity {
     public String title;
 
     public String manufacturer;
+
+    @Enumerated(EnumType.STRING)
+    public ItemType itemType;
 
     public String category;
 

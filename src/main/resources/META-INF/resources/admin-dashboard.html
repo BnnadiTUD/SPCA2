@@ -212,6 +212,15 @@
         </div>
 
         <div>
+          <label for="itemType">Item Family</label>
+          <select id="itemType">
+            <option value="SHIRT">Shirt</option>
+            <option value="JACKET">Jacket</option>
+            <option value="FOOTWEAR">Footwear</option>
+          </select>
+        </div>
+
+        <div>
           <label for="category">Category</label>
           <input type="text" id="category" />
         </div>
@@ -268,6 +277,16 @@
         </div>
 
         <div>
+          <label for="searchItemType">Search Item Family</label>
+          <select id="searchItemType">
+            <option value="">All</option>
+            <option value="SHIRT">Shirt</option>
+            <option value="JACKET">Jacket</option>
+            <option value="FOOTWEAR">Footwear</option>
+          </select>
+        </div>
+
+        <div>
           <label for="sortBy">Sort By</label>
           <select id="sortBy">
             <option value="">None</option>
@@ -307,6 +326,7 @@
             <th>ID</th>
             <th>Title</th>
             <th>Manufacturer</th>
+            <th>Family</th>
             <th>Category</th>
             <th>Price</th>
             <th>Stock</th>
@@ -350,6 +370,7 @@
       return {
         title: document.getElementById('title').value.trim(),
         manufacturer: document.getElementById('manufacturer').value.trim(),
+        itemType: document.getElementById('itemType').value,
         category: document.getElementById('category').value.trim(),
         price: parseFloat(document.getElementById('price').value),
         description: document.getElementById('description').value.trim(),
@@ -364,6 +385,7 @@
     	  document.getElementById('itemId').value = '';
     	  document.getElementById('title').value = '';
     	  document.getElementById('manufacturer').value = '';
+    	  document.getElementById('itemType').value = 'SHIRT';
     	  document.getElementById('category').value = '';
     	  document.getElementById('price').value = '';
     	  document.getElementById('description').value = '';
@@ -506,6 +528,7 @@
       const title = document.getElementById('searchTitle').value.trim();
       const manufacturer = document.getElementById('searchManufacturer').value.trim();
       const category = document.getElementById('searchCategory').value.trim();
+      const itemType = document.getElementById('searchItemType').value;
       const sortBy = document.getElementById('sortBy').value;
       const sortDirection = document.getElementById('sortDirection').value;
 
@@ -514,6 +537,7 @@
       if (title) params.append('title', title);
       if (manufacturer) params.append('manufacturer', manufacturer);
       if (category) params.append('category', category);
+      if (itemType) params.append('itemType', itemType);
       if (sortBy) params.append('sortBy', sortBy);
       if (sortDirection) params.append('sortDirection', sortDirection);
 
@@ -538,10 +562,11 @@
 
       items.forEach(item => {
         const row = `
-        	<tr onclick="selectItem(${item.id}, '${escapeText(item.title)}', '${escapeText(item.manufacturer)}', '${escapeText(item.category)}', ${item.price}, '${escapeText(item.description)}', ${item.stockQuantity}, '${escapeText(item.pictureLink)}')">
+        	<tr onclick="selectItem(${item.id}, '${escapeText(item.title)}', '${escapeText(item.manufacturer)}', '${escapeText(item.itemType)}', '${escapeText(item.category)}', ${item.price}, '${escapeText(item.description)}', ${item.stockQuantity}, '${escapeText(item.pictureLink)}')">
             <td>${item.id}</td>
             <td>${item.title}</td>
             <td>${item.manufacturer}</td>
+            <td>${item.itemType ?? ''}</td>
             <td>${item.category}</td>
             <td>${item.price}</td>
             <td>${item.stockQuantity}</td>
@@ -558,10 +583,11 @@
       return String(text ?? '').replace(/'/g, "\\'");
     }
 
-    function selectItem(id, title, manufacturer, category, price, description, stockQuantity, pictureLink) {
+    function selectItem(id, title, manufacturer, itemType, category, price, description, stockQuantity, pictureLink) {
       document.getElementById('itemId').value = id;
       document.getElementById('title').value = title;
       document.getElementById('manufacturer').value = manufacturer;
+      document.getElementById('itemType').value = itemType || 'SHIRT';
       document.getElementById('category').value = category;
       document.getElementById('price').value = price;
       document.getElementById('description').value = description;

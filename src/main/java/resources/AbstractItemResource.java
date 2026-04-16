@@ -32,13 +32,14 @@ public abstract class AbstractItemResource {
             String title,
             String manufacturer,
             String category,
+            String itemType,
             String sortBy,
             String sortDirection) {
 
         beforeItemAccess();
         validateSortField(sortBy);
         validateSortDirection(sortDirection);
-        return adminFacade.searchItems(title, manufacturer, category, sortBy, sortDirection);
+        return adminFacade.searchItems(title, manufacturer, category, itemType, sortBy, sortDirection);
     }
 
     protected abstract void beforeItemAccess();

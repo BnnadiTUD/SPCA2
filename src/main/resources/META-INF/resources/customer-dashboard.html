@@ -188,6 +188,16 @@
                 </div>
 
                 <div>
+                    <label for="itemType">Filter by Item Family</label>
+                    <select id="itemType">
+                        <option value="">All</option>
+                        <option value="SHIRT">Shirt</option>
+                        <option value="JACKET">Jacket</option>
+                        <option value="FOOTWEAR">Footwear</option>
+                    </select>
+                </div>
+
+                <div>
                     <label for="sortBy">Sort By</label>
                     <select id="sortBy">
                         <option value="">None</option>
@@ -229,6 +239,7 @@
             const title = document.getElementById("title").value.trim();
             const manufacturer = document.getElementById("manufacturer").value.trim();
             const category = document.getElementById("category").value.trim();
+            const itemType = document.getElementById("itemType").value;
             const sortBy = document.getElementById("sortBy").value;
             const sortDirection = document.getElementById("sortDirection").value;
 
@@ -243,6 +254,7 @@
             if (title) params.append("title", title);
             if (manufacturer) params.append("manufacturer", manufacturer);
             if (category) params.append("category", category);
+            if (itemType) params.append("itemType", itemType);
             if (sortBy) params.append("sortBy", sortBy);
             if (sortDirection) params.append("sortDirection", sortDirection);
 
@@ -274,6 +286,7 @@
                     card.innerHTML = `
                         ${imageHtml}
                         <h3>${item.title ?? "No title"}</h3>
+                        <p><strong>Family:</strong> ${item.itemType ?? "N/A"}</p>
                         <p><strong>Manufacturer:</strong> ${item.manufacturer ?? "N/A"}</p>
                         <p><strong>Category:</strong> ${item.category ?? "N/A"}</p>
                         <p><strong>Price:</strong> €${item.price ?? "N/A"}</p>

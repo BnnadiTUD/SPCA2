@@ -94,9 +94,10 @@ public class CustomerResource extends AbstractItemResource {
             @QueryParam("title") String title,
             @QueryParam("manufacturer") String manufacturer,
             @QueryParam("category") String category,
+            @QueryParam("itemType") String itemType,
             @QueryParam("sortBy") String sortBy,
             @QueryParam("sortDirection") String sortDirection) {
-        return searchItemsTemplate(title, manufacturer, category, sortBy, sortDirection);
+        return searchItemsTemplate(title, manufacturer, category, itemType, sortBy, sortDirection);
     }
     
     @POST
