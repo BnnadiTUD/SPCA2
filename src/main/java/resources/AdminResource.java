@@ -97,18 +97,18 @@ public class AdminResource extends AbstractItemResource {
     
     @POST
     @Path("/register")
-    public Response register(AdminRegisterRequest request) {
-    	adminFacade.register(request);
-        return Response.ok("Admin registered successfully").build();
+    public Response register(@Valid AdminRegisterRequest request) {
+    	model.Admin admin = adminFacade.register(request);
+        return Response.ok(new AdminLoginResponse("Admin registered successfully", "ADMIN", admin.id, admin.name, admin.email)).build();
     }
 
     @POST
     @Path("/login")
-    public Response login(LoginRequest request) {
-        boolean success = adminFacade.login(request);
+    public Response login(@Valid LoginRequest request) {
+        model.Admin admin = adminFacade.login(request);
 
-        if (success) {
-            return Response.ok(new AdminLoginResponse("Login successful", "ADMIN")).build();
+        if (admin != null) {
+            return Response.ok(new AdminLoginResponse("Login successful", "ADMIN", admin.id, admin.name, admin.email)).build();
         }
 
         return Response.status(Response.Status.UNAUTHORIZED)

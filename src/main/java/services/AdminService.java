@@ -2,6 +2,7 @@ package services;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.BadRequestException;
 import model.Admin;
 
 import java.util.List;
@@ -16,34 +17,41 @@ import model.Order;
 @ApplicationScoped
 public class AdminService {
 
-    public boolean login(LoginRequest request) {
+    @Transactional
+    public Admin login(LoginRequest request) {
 
-        Admin admin = Admin.find("email", request.email).firstResult();
+        Admin admin = Admin.find("email", normalizeEmail(request.email)).firstResult();
 
         if (admin == null) {
-            return false;
+            return null;
         }
 
-        
-        return admin.passwordHash.equals(request.password);
+        if (!admin.passwordHash.equals(request.password)) {
+            return null;
+        }
+
+        return admin;
     }
     
     @Transactional
-    public void register(AdminRegisterRequest request) {
+    public Admin register(AdminRegisterRequest request) {
 
         // Check if email already exists
-        Admin existing = Admin.find("email", request.email).firstResult();
+        String normalizedEmail = normalizeEmail(request.email);
+
+        Admin existing = Admin.find("email", normalizedEmail).firstResult();
         if (existing != null) {
-            throw new RuntimeException("Admin already exists");
+            throw new BadRequestException("An admin with that email already exists");
         }
 
         Admin admin = new Admin(
                 request.name,
-                request.email,
-                request.password // simple version
+                normalizedEmail,
+                request.password
         );
 
         admin.persist();
+        return admin;
     }
     
     public List<CustomerResponse> getAllCustomers() {
@@ -75,5 +83,9 @@ public class AdminService {
                 
             ))
             .toList();
+    }
+
+    private String normalizeEmail(String email) {
+        return email == null ? null : email.trim().toLowerCase();
     }
 }

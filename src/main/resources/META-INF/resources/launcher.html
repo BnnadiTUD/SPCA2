@@ -28,8 +28,34 @@
         .subtitle {
             text-align: center;
             color: #666;
-            margin-bottom: 35px;
+            margin-bottom: 16px;
             font-size: 16px;
+        }
+
+        .discount-list {
+            max-width: 760px;
+            margin: 0 auto 35px auto;
+            padding: 14px 18px;
+            background: #ffffff;
+            border: 1px solid #d8d8d8;
+            border-radius: 14px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+            color: #444;
+        }
+
+        .discount-list h3 {
+            margin: 0 0 10px 0;
+            font-size: 17px;
+            color: #222;
+        }
+
+        .discount-list ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .discount-list li {
+            margin-bottom: 6px;
         }
 
         .container {
@@ -124,6 +150,14 @@
 
     <h1>Online Clothes Store</h1>
     <div class="subtitle">Login or register as an admin or customer to access the store system.</div>
+    <div class="discount-list">
+        <h3>Customer Discount Opportunities</h3>
+        <ul>
+            <li>Bulk order discount when the checkout subtotal exceeds €200</li>
+            <li>Loyalty discount from the third order onward</li>
+            <li>Cash on Delivery discount when that payment method is used</li>
+        </ul>
+    </div>
 
     <div class="container">
 
@@ -178,6 +212,22 @@
     </div>
 
     <script>
+        async function readErrorMessage(response, fallbackMessage) {
+            const contentType = response.headers.get("content-type") || "";
+
+            try {
+                if (contentType.includes("application/json")) {
+                    const data = await response.json();
+                    return data.message || data.details || JSON.stringify(data);
+                }
+
+                const text = await response.text();
+                return text || fallbackMessage;
+            } catch (error) {
+                return fallbackMessage;
+            }
+        }
+
         async function adminLogin() {
             const email = document.getElementById("adminLoginEmail").value;
             const password = document.getElementById("adminLoginPassword").value;
@@ -191,7 +241,7 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error("Admin login failed");
+                    throw new Error(await readErrorMessage(response, "Admin login failed"));
                 }
 
                 const data = await response.json();
@@ -218,7 +268,7 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error("Admin registration failed");
+                    throw new Error(await readErrorMessage(response, "Admin registration failed"));
                 }
 
                 const data = await response.json();
@@ -244,7 +294,7 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error("Customer login failed");
+                    throw new Error(await readErrorMessage(response, "Customer login failed"));
                 }
 
                 const data = await response.json();
@@ -285,7 +335,7 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error("Customer registration failed");
+                    throw new Error(await readErrorMessage(response, "Customer registration failed"));
                 }
 
                 const data = await response.json();

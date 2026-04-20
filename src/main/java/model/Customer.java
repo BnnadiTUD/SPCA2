@@ -1,6 +1,7 @@
 package model;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -9,7 +10,10 @@ import jakarta.persistence.Enumerated;
 public class Customer extends PanacheEntity {
 
     public String name;
+
+    @Column(nullable = false, unique = true)
     public String email;
+
     public String password;
     public String address;
     

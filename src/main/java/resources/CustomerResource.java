@@ -12,6 +12,7 @@ import dtos.OrderResponse;
 import dtos.ReviewRequest;
 import dtos.ReviewResponse;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -41,7 +42,7 @@ public class CustomerResource extends AbstractItemResource {
     ReviewService rs;
     @POST
     @Path("/register")
-    public Response register(CustomerRegRequest req) {
+    public Response register(@Valid CustomerRegRequest req) {
         Customer c = service.register(req);
 
         CustomerLoginResponse response = new CustomerLoginResponse(
@@ -58,7 +59,7 @@ public class CustomerResource extends AbstractItemResource {
 
     @POST
     @Path("/login")
-    public Response login(LoginRequest req) {
+    public Response login(@Valid LoginRequest req) {
         CustomerLoginResponse response = service.login(req.email, req.password);
         return Response.ok(response).build();
     }

@@ -366,6 +366,22 @@
       box.innerHTML = `<div class="message ${isError ? 'error' : 'success'}">${text}</div>`;
     }
 
+    async function readErrorMessage(response, fallbackMessage) {
+      const contentType = response.headers.get('content-type') || '';
+
+      try {
+        if (contentType.includes('application/json')) {
+          const data = await response.json();
+          return data.message || data.details || JSON.stringify(data);
+        }
+
+        const text = await response.text();
+        return text || fallbackMessage;
+      } catch (error) {
+        return fallbackMessage;
+      }
+    }
+
     function getItemData() {
       return {
         title: document.getElementById('title').value.trim(),
@@ -402,10 +418,8 @@
           body: JSON.stringify(getItemData())
         });
 
-        const text = await response.text();
-
         if (!response.ok) {
-          throw new Error(text || 'Failed to create item');
+          throw new Error(await readErrorMessage(response, 'Failed to create item'));
         }
 
         showMessage('Item created successfully');
@@ -432,10 +446,8 @@
           body: JSON.stringify(getItemData())
         });
 
-        const text = await response.text();
-
         if (!response.ok) {
-          throw new Error(text || 'Failed to update item');
+          throw new Error(await readErrorMessage(response, 'Failed to update item'));
         }
 
         showMessage('Item updated successfully');
@@ -460,10 +472,8 @@
           method: 'DELETE'
         });
 
-        const text = await response.text();
-
         if (!response.ok) {
-          throw new Error(text || 'Failed to delete item');
+          throw new Error(await readErrorMessage(response, 'Failed to delete item'));
         }
 
         showMessage('Item deleted successfully');
@@ -493,10 +503,8 @@
           })
         });
 
-        const text = await response.text();
-
         if (!response.ok) {
-          throw new Error(text || 'Failed to update stock');
+          throw new Error(await readErrorMessage(response, 'Failed to update stock'));
         }
 
         showMessage('Stock updated successfully');

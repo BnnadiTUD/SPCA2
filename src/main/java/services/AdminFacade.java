@@ -8,6 +8,7 @@ import dtos.ItemRequest;
 import dtos.ItemResponse;
 import dtos.LoginRequest;
 import dtos.OrderResponse;
+import model.Admin;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -21,13 +22,13 @@ public class AdminFacade {
     ItemService itemService;
 
     //  login
-    public boolean login(LoginRequest request) {
+    public Admin login(LoginRequest request) {
         return adminService.login(request);
     }
 
     // register
-    public void register(AdminRegisterRequest request) {
-        adminService.register(request);
+    public Admin register(AdminRegisterRequest request) {
+        return adminService.register(request);
     }
 
     // Create item

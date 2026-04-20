@@ -190,6 +190,7 @@ public class ItemService {
         response.itemType = item.itemType != null ? item.itemType.name() : null;
         response.price = item.price;
         response.category = item.category;
+        response.description = item.description;
         response.stockQuantity = item.stockQuantity;
         response.pictureLink = item.pictureLink;
 
