@@ -1,224 +1,339 @@
-SPCA2 – Online Clothing Store System
-1. Introduction
+# SPCA2 - Online Clothing Store System
 
-This project presents the design and implementation of a full-stack online clothing store system, developed as part of a Software Design Patterns assignment. The system demonstrates the application of modern backend development practices using Quarkus, alongside the integration of key object-oriented design principles and design patterns.
+## Introduction
+This project is a full-stack online clothing store system developed as part of a Software Design Patterns assignment. It is built with Quarkus, Hibernate ORM with Panache, MySQL, and a lightweight HTML/CSS/JavaScript frontend.
 
-The primary objective of this project is to simulate a real-world e-commerce environment, supporting both customer-facing functionality (browsing, searching, ordering) and administrative operations (stock management, customer oversight). Emphasis is placed on building a scalable, maintainable, and modular architecture.
+The system simulates a real e-commerce environment with both customer-facing and administrator-facing functionality. The design focuses on modularity, layered architecture, reusable software patterns, and realistic store workflows such as browsing, filtering, cart management, checkout, stock control, and reviews.
 
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## System Features
 
-2. System Features
+### Customer Functionality
+- Register and log in
+- Browse all available clothing items
+- Search and filter items by:
+  - title
+  - manufacturer
+  - category
+  - item family (`SHIRT`, `JACKET`, `FOOTWEAR`)
+- Sort results dynamically by:
+  - title
+  - manufacturer
+  - category
+  - price
+- Add items to a shopping cart
+- Remove items from the cart
+- Place orders through checkout
+- Receive automatic discount application during checkout
+- View order history and order item details
+- Leave ratings and written reviews on items
+- View item ratings and customer reviews
 
-2.1 Customer Functionality
-Browse all available clothing items
-Search items using:
-Title (partial matching supported)
-Manufacturer
-Category
-Sort results dynamically by:
-Title
-Manufacturer
-Price
-Add items to a shopping cart
-Place orders
+### Administrative Functionality
+- Register and log in
+- Perform full CRUD operations on items
+- Create and manage item families such as shirts, jackets, and footwear
+- Adjust stock levels to simulate inventory management
+- Search and sort stock items
+- View customer details
+- View customer purchase history
+- View stock event and low-stock alert information
 
-2.2 Administrative Functionality
-Secure admin registration and login
-Perform full CRUD operations on items
-Adjust stock levels to simulate inventory management
-View customer details and purchase history
+## Technology Stack
+- Backend Framework: Quarkus (Java 17)
+- Database: MySQL
+- Test Database: H2 (in-memory)
+- ORM: Hibernate ORM with Panache
+- Build Tool: Maven
+- Frontend: HTML, CSS, JavaScript
+- Testing: JUnit, RestAssured, Quarkus test framework
 
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+This stack was chosen to provide good performance, strong developer productivity, and clean integration between the API, persistence, and frontend layers.
 
-3. Technology Stack
+## Architecture
+The application follows a layered architectural structure:
 
-The system is implemented using the following technologies:
+- Model Layer  
+  Defines persistent entities such as `Item`, `Customer`, `Order`, `Cart`, and `Review`.
 
-Backend Framework: Quarkus (Java)
-Database: MySQL
-ORM: Hibernate ORM with Panache
-Build Tool: Maven
-Frontend: HTML, CSS, JavaScript (lightweight UI for interaction)
-Testing Tools: Postman
+- DTO Layer  
+  Defines request and response models used by the REST API, separating external data transfer from internal entities.
 
-This stack was selected to ensure high performance, developer productivity, and ease of integration.
+- Repository Layer  
+  Encapsulates persistence operations using Panache repositories.
 
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+- Service Layer  
+  Contains business logic such as registration, login, item management, filtering, sorting, cart handling, checkout, discounts, and review processing.
 
-4. System Architecture
+- Resource Layer  
+  Exposes REST endpoints for customer and admin interactions.
 
-The application follows a layered architectural pattern, ensuring separation of concerns and improved maintainability.
+This separation improves readability, maintainability, reuse, and testability.
 
-Model Layer
-Represents persistent entities such as Item, Customer, and Order.
-Repository Layer
-Handles database interactions using Panache repositories.
-Service Layer
-Contains business logic, acting as an intermediary between repositories and controllers.
-DTO Layer (Data Transfer Objects)
-Ensures secure and structured data exchange between layers.
-Resource Layer (REST Controllers)
-Exposes API endpoints for client interaction.
+## Database Design
+The main entities in the system are:
+- `Admin`
+- `Customer`
+- `Item`
+- `Cart`
+- `CartItem`
+- `Order`
+- `OrderItem`
+- `Review`
 
-This architecture promotes loose coupling, high cohesion, and testability, which are critical for scalable systems.
+Supporting enums:
+- `PaymentMethod`
+- `ItemType`
 
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Key relationships:
+- One customer has one cart
+- One cart contains many cart items
+- One customer can place many orders
+- One order contains many order items
+- One item can appear in many cart items, order items, and reviews
+- One item can receive many reviews from customers
 
-5. Design Patterns Implementation
+The use of `CartItem` and `OrderItem` as separate entities is important because it keeps temporary shopping-cart data separate from permanent transaction history.
 
-The project incorporates several Gang of Four (GoF) design patterns, demonstrating an understanding of reusable software solutions.
+## Design Patterns Used
+The project applies several GoF and architectural patterns in the implementation.
 
-5.1 Strategy Pattern
+### Strategy Pattern
+Used for interchangeable item sorting behaviour.
 
-The Strategy pattern is used to implement flexible sorting behaviour. Each sorting method (e.g., by price, title, or manufacturer) is encapsulated within its own strategy class.
-
-Benefit:
-
-Eliminates complex conditional logic
-Allows new sorting strategies to be added without modifying existing code
-
-5.2 Factory Pattern
-
-A Factory is used to dynamically create the appropriate sorting strategy based on user input.
-
-Benefit:
-
-Centralises object creation
-Improves extensibility and reduces coupling
-
-5.3 Facade Pattern
-
-The Facade pattern simplifies complex administrative operations by providing a single interface that coordinates multiple services.
-
-Benefit:
-
-Reduces system complexity
-Improves code readability and usability
-
-5.4 Filter Pattern (Criteria Pattern)
-
-The Filter Pattern is applied to handle search functionality, where multiple criteria (title, manufacturer, category) can be combined dynamically.
-
-Instead of using large conditional queries, individual filters are applied to a collection of items and combined as needed.
-
-Example Concept:
-
-Filter by title
-Filter by category
-Combine filters for refined results
-
-Benefit:
-
-Promotes reusable and composable filtering logic
-Improves readability compared to large conditional search methods
-Allows easy extension (e.g., filtering by price range or stock availability)
-
-Justification:
-Given that the system supports multi-criteria searching, the Filter pattern provides a cleaner and more scalable alternative to hardcoded query logic.
-
-5.5 Observer Pattern
-
-The Observer pattern is used to model event-driven behaviour within the system, particularly for scenarios such as stock updates or order processing.
-
-For example:
-
-When an order is placed, the system can notify:
-Inventory (to update stock levels)
-Admin system (to log activity)
-Customer service components (for confirmation handling)
+Examples:
+- `SortingTitleStrat`
+- `SortingManufacturerStrat`
+- `SortingCategoryStrat`
+- `SortingPriceStrat`
+- `SortingStockStrat`
 
 Benefit:
+- avoids one large sorting conditional
+- makes new sort behaviours easy to add
 
-Decouples components (observers do not need direct dependencies)
-Supports event-driven architecture
-Makes the system more extensible for future features (e.g., notifications, analytics)
+### Factory Pattern
+Used in two major places:
 
-Justification:
-The Observer pattern is appropriate for situations where multiple components must react to a single event, such as an order being created or stock being updated.
+1. `ItemSortStrategyFactory`  
+   Selects the correct sorting strategy at runtime.
 
-5.6 Justification
+2. `ItemFactory`  
+   Creates item families through dedicated creators such as:
+   - `ShirtItemCreator`
+   - `JacketItemCreator`
+   - `FootwearItemCreator`
 
-The use of these patterns improves:
+Benefit:
+- centralises object creation
+- reduces coupling
+- supports future extension of item families and behaviours
 
-Code readability
-Extensibility (new features can be added with minimal changes)
-Maintainability (clear separation of responsibilities)
+### Facade Pattern
+Implemented through `AdminFacade`.
 
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Benefit:
+- provides a single entry point for admin-related operations
+- simplifies interaction between the API layer and multiple services
 
-6. Database Configuration
+### Filter Pattern
+Used for flexible multi-criteria item searching.
 
-The system uses a MySQL relational database. To initialise:
+Examples:
+- `TitleFilter`
+- `ManufacturerFilter`
+- `CategoryFilter`
+- `ItemTypeFilter`
+- `ItemFilterHandler`
 
+Benefit:
+- keeps search logic modular and composable
+- allows multiple filters to be combined dynamically
+
+### Observer Pattern
+Used for stock-related event handling.
+
+Examples:
+- `StockInventManager`
+- `ObserveLowStock`
+- `ObserveChangeOfStock`
+
+Benefit:
+- decouples stock-changing logic from stock-monitoring behaviour
+- supports multiple reactions to inventory changes
+
+### Decorator Pattern
+Used in the discount subsystem during checkout.
+
+Examples:
+- `DiscountStrategy`
+- `NoDiscountStrategy`
+- `AbstractDiscountDecorator`
+- `BulkOrderDiscountDecorator`
+- `LoyaltyDiscountDecorator`
+- `CashOnDeliveryDiscountDecorator`
+
+Benefit:
+- allows multiple discounts to be combined dynamically
+- keeps pricing logic extensible
+
+### Template Method Pattern
+Used in `AbstractItemResource`.
+
+Benefit:
+- defines shared item-access workflows once
+- allows admin and customer resources to customise limited steps
+
+### DTO Pattern
+Used throughout the API to separate external JSON contracts from entity classes.
+
+Benefit:
+- reduces coupling
+- controls what data is accepted and returned
+- supports request validation cleanly
+
+### Repository Pattern
+Implemented with classes such as:
+- `ItemRepo`
+- `CustomerRepo`
+- `ReviewRepo`
+
+Benefit:
+- isolates persistence concerns from business logic
+
+## Validation and Current Security Approach
+The project includes request validation for important inputs such as:
+- login and registration requests
+- item creation and update requests
+- stock update requests
+
+Examples of enforced checks:
+- valid email addresses
+- minimum password length
+- non-null item family
+- positive item price
+- non-negative stock quantity
+- required item title, manufacturer, category, and description
+
+Authentication is currently implemented in a simple coursework-friendly way using stored passwords and login verification in the service layer. This is sufficient for the assignment prototype, but future production-style improvements would include:
+- password hashing
+- session or token-based authentication
+- stronger authorization enforcement
+- role-protected endpoints
+
+## Discounts
+Customers can receive discounts automatically during checkout. These are handled on the backend rather than selected manually by the user.
+
+Implemented discount rules:
+- Bulk order discount when subtotal exceeds EUR200
+- Loyalty discount from the third order onward
+- Cash on Delivery discount when that payment method is used
+
+This keeps business rules centralised and consistent.
+
+## Running the Application
+
+### 1. Create the Database
+Create a MySQL database, for example:
+
+```sql
 CREATE DATABASE spca2;
+```
 
-Configure the connection in application.properties:
+### 2. Configure the Datasource
+Update `src/main/resources/application.properties` with your MySQL credentials:
 
+```properties
 quarkus.datasource.db-kind=mysql
 quarkus.datasource.username=YOUR_USERNAME
 quarkus.datasource.password=YOUR_PASSWORD
-quarkus.datasource.jdbc.url=jdbc:mysql://localhost:3306/spca2
+quarkus.datasource.jdbc.url=jdbc:mysql://localhost:3306/SPCA1
+quarkus.hibernate-orm.schema-management.strategy=update
+```
 
-quarkus.hibernate-orm.database.generation=update
+Note: the current project configuration uses `SPCA1` in the JDBC URL, so either create that database name or update the URL to match your intended schema name.
 
-The update setting ensures the schema evolves automatically during development.
+### 3. Start in Development Mode
+On Windows:
 
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+```powershell
+.\mvnw.cmd quarkus:dev
+```
 
-7. Running the Application
-   
-7.1 Development Mode
-./mvnw quarkus:dev
-Application URL: http://localhost:8080
-Dev UI: http://localhost:8080/q/dev
+Or with Maven installed:
 
-Development mode enables live reload, significantly improving development efficiency.
+```powershell
+mvn quarkus:dev
+```
 
-7.2 Packaging and Execution
-./mvnw package
+Application URLs:
+- App: [http://localhost:8080](http://localhost:8080)
+- Dev UI: [http://localhost:8080/q/dev](http://localhost:8080/q/dev)
 
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+### 4. Package the Application
+```powershell
+.\mvnw.cmd package
+```
 
-8. Testing Strategy
+## Frontend Pages
+The application includes lightweight frontend pages under `src/main/resources/META-INF/resources`, including:
+- `launcher.html`
+- `admin-dashboard.html`
+- `customer-dashboard.html`
+- `cart.html`
+- `orders.html`
 
-Testing was conducted using:
+The launcher page also lists the available customer discount opportunities.
 
-Postman for API endpoint validation
-Manual UI testing via HTML pages
-Verification of:
-CRUD operations
-Search and sorting logic
-Data persistence
+## Testing
+The project now includes automated project-specific tests instead of the default Quarkus starter tests.
 
-This approach ensures that both functional correctness and data integrity are maintained.
+The test suite currently verifies:
+- customer registration and login behaviour
+- validation failure for weak customer passwords
+- item filtering by item family
+- combined filtering by item family and manufacturer
 
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Tests run against an in-memory H2 database, so they do not require the local MySQL database to be running.
 
-9. Evaluation and Reflection
+Run the tests with:
 
-The system successfully demonstrates the application of software design patterns in a real-world scenario. The layered architecture and use of patterns such as Strategy and Factory significantly improved the modularity of the system.
+```powershell
+mvn test
+```
 
-However, several improvements could be made:
+## Evaluation and Reflection
+The system successfully demonstrates the use of software design patterns in a realistic web application context. It goes beyond simple CRUD by including:
+- cart management
+- checkout workflow
+- stock reduction and stock monitoring
+- review functionality
+- dynamic filtering and sorting
+- item-family creation logic
+- automated tests
 
-Implementation of JWT-based authentication
-Enhanced frontend using a modern framework (e.g., React)
-Persistent shopping cart functionality
-Integration of payment processing
+Recent improvements include:
+- item family support through `ItemType`
+- registry-based factory selection
+- item-type filtering
+- stronger request validation
+- replacement of the old Quarkus starter tests with real project tests
+- clearer launcher-side feedback for login and registration failures
 
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Potential future improvements:
+- stronger authentication and authorization
+- repository-level query filtering for better scalability
+- expanded automated coverage for checkout and stock updates
+- modern frontend framework integration
+- payment gateway integration
 
-10. Conclusion
+## Conclusion
+This project demonstrates how pattern-driven design and layered architecture can be used to build a structured, extensible online store application. By combining Quarkus with recognised software patterns, the system achieves a strong balance between clarity, maintainability, and practical functionality.
 
-This project highlights the importance of structured design and pattern-driven development in building scalable applications. By combining Quarkus with established design principles, the system achieves a balance between performance, maintainability, and extensibility.
+## References
+- [Quarkus](https://quarkus.io/)
+- [Hibernate ORM](https://hibernate.org/)
+- [MySQL](https://www.mysql.com/)
 
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-11. References
-    
-https://quarkus.io/
-https://hibernate.org/
-https://www.mysql.com/
-13. Author
-
-Bryan Nnadi
+## Author
+Bryan Nnadi  
 Final Year B.Sc. Business Computing
